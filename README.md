@@ -1,7 +1,8 @@
 
   # LMS Landing Page
 
-  This is a code bundle for LMS Landing Page. The original project is available at https://www.figma.com/design/xXTJsMZII9cZPXbuc30GJ5/LMS-Landing-Page.
+  This is a code bundle for KDP Success Guide webapp. Created by Ganiyat and Promise
+  
 
   ## Running the code
 
