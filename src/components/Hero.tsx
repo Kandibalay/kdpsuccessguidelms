@@ -1,3 +1,4 @@
+import React from 'react';
 import { ArrowRight, Search, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
@@ -10,13 +11,13 @@ const heroSlides = [
   },
   {
     image: "https://images.unsplash.com/photo-1610731826702-6ded935d39a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbWF6b24lMjBraW5kbGUlMjBib29rcyUyMHJlYWRpbmd8ZW58MXx8fHwxNzY1NDc2MTI0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    title: "Publish Your First Bestseller",
-    subtitle: "Discover the secrets to creating books that readers love and buy. Master niche research, book design, and Amazon's algorithm to maximize your success."
+    title: "Scale up Your Amazon KDP Results to $5k/Month",
+    subtitle:  "Transform your KDP journey from struggling to thriving. Join the exclusive inner circle where ordinary people achieve extraordinary results."
   },
   {
     image: "https://images.unsplash.com/photo-1639916765637-43de505e45a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRob3IlMjB3cml0aW5nJTIwZGVzayUyMHdvcmtzcGFjZXxlbnwxfHx8fDE3NjU0NzYxMjV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    title: "Build Your Publishing Empire",
-    subtitle: "Scale from your first book to a profitable publishing business. Learn advanced marketing strategies and automation techniques from successful KDP publishers."
+    title:"Stop Guessing. Start Earning.",
+    subtitle: "The same strategies that helped hundreds reach $5k/month are waiting for you. No fluff, just results."
   }
 ];
 

@@ -1,41 +1,42 @@
-import { BookOpen, Target, TrendingUp, DollarSign, Zap, Award } from 'lucide-react';
+import React from 'react';
+import { BookOpen, Target, TrendingUp, DollarSign, Zap, LockKeyholeOpen, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const highlights = [
   { 
     icon: BookOpen, 
     name: 'Book Creation', 
-    description: 'Learn to create high-quality books that sell',
+    description: 'Winning Research Strategy',
     color: 'bg-blue-50 text-blue-600' 
   },
   { 
     icon: Target, 
     name: 'Niche Research', 
-    description: 'Find profitable niches with low competition',
+    description: 'Break down of My Specific and highly profitable niche',
     color: 'bg-orange-50 text-orange-600' 
   },
   { 
     icon: TrendingUp, 
     name: 'Marketing Strategies', 
-    description: 'Proven tactics to boost your book sales',
+    description: 'My personal Ads Strategy that works',
     color: 'bg-pink-50 text-pink-600' 
   },
   { 
     icon: DollarSign, 
     name: 'Monetization', 
-    description: 'Multiple income streams from your books',
+    description: 'My key $5k/month Template',
     color: 'bg-green-50 text-green-600' 
   },
   { 
-    icon: Zap, 
-    name: 'Fast Results', 
-    description: 'Start seeing results in weeks, not months',
+    icon: LockKeyholeOpen, 
+    name: 'Account Safety', 
+    description: 'Strategy I use in keeping my account safe',
     color: 'bg-orange-100 text-orange-600' 
   },
   { 
     icon: Award, 
-    name: 'Expert Support', 
-    description: 'Direct access to DSAM and community',
+    name: 'Bonus Content', 
+    description: 'Bonus: 5 Hot Topics',
     color: 'bg-indigo-50 text-indigo-600' 
   }
 ];
@@ -66,10 +67,13 @@ export function CourseHighlights() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="text-primary mb-2">What You'll Learn</div>
-          <h2 className="mb-4 text-3xl md:text-4xl text-gray-900">
-            Everything You Need For KDP Success
-          </h2>
+          <div className="text-primary mb-2"> What You Will Be Learning</div>
+          <h2 className="mb-6 text-4xl md:text-5xl text-gray-900 max-w-3xl mx-auto">
+              The Exact Strategies That Took Me to <span className="text-primary">$5k/Month</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              No theory. No guesswork. Just proven, battle-tested strategies that work in today's market.
+            </p>
         </motion.div>
 
         <motion.div 
@@ -88,7 +92,7 @@ export function CourseHighlights() {
                 className="group bg-white rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center"
                 whileHover={{ 
                   scale: 1.05,
-                  rotate: [0, -2, 2, -2, 0],
+                  // rotate: [0, -2, 2, -2, 0],
                   transition: { duration: 0.3 }
                 }}
               >

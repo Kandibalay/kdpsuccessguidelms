@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form@7.55.0';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { motion } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
 import Footer  from '../components/Footer';
+import toast from 'react-hot-toast';
+import axios, { AxiosError } from 'axios';
 
 interface LoginFormData {
   email: string;
@@ -11,9 +13,19 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
 export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
   
   const {
     register,
@@ -23,13 +35,45 @@ export function Login() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('Login data:', data);
-    setIsLoading(false);
-    // Handle login logic here
-  };
 
+    try {
+      const response = await axios.post<LoginResponse>(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      localStorage.setItem('token', response.data.token);
+
+      toast.success('Login successful 🎉');
+
+      navigate('/dashboard');
+    } catch (error) {
+      const err = error as AxiosError<any>;
+
+      if (err.response) {
+        // Backend error (400, 401, etc.)
+        toast.error(
+          err.response.data?.message ||
+            'Invalid email or password'
+        );
+      } else {
+        // Network error
+        toast.error('Network error. Please try again.');
+      }
+
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* Login Form Section */}

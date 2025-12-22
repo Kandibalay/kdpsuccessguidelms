@@ -54,12 +54,12 @@ export default function App() {
       duration: 4000,
       style: {
         borderRadius: '12px',
-        background: '#101828',
+        background: '#1e5174',
         color: '#fff',
       },
     }}
   />
-    <BrowserRouter>
+    {/* <BrowserRouter> */}
       <div className="min-h-screen bg-white">
         <Routes>
           {/* Public Routes with Navbar */}
@@ -87,7 +87,7 @@ export default function App() {
           </Route>
         </Routes>
       </div>
-    </BrowserRouter>
+    {/* </BrowserRouter> */}
     </>
   );
 }
