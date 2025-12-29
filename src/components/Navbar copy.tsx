@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext'; 
-import { useProfileStore } from '../store/profileStore';
 import logo from '../assets/Sam Logo.jpg';
 
 export function Navbar() {
@@ -13,12 +12,6 @@ export function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const location = useLocation();
   const { auth, logout } = useAuth();
-  
-  // Get profile data from Zustand store
-  const profile = useProfileStore((state) => state.profile);
-  const avatarUrl = useProfileStore((state) => state.avatarUrl);
-  const getInitials = useProfileStore((state) => state.getInitials);
-  const clearProfile = useProfileStore((state) => state.clearProfile);
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -30,9 +23,8 @@ export function Navbar() {
 
   // Get first name and initial
   const getFirstName = () => {
-    const fullName = profile?.fullName || auth.user?.fullName;
-    if (!fullName) return '';
-    const nameParts = fullName.trim().split(' ').filter(Boolean);
+    if (!auth.user?.fullName) return '';
+    const nameParts = auth.user.fullName.trim().split(' ').filter(Boolean);
     
     if (nameParts.length === 0) return '';
     if (nameParts.length === 1) return nameParts[0];
@@ -41,14 +33,18 @@ export function Navbar() {
     return `${nameParts[0]} ${nameParts[nameParts.length - 1]}`;
   };
 
-  const getUserInitials = () => {
-    const fullName = profile?.fullName || auth.user?.fullName;
-    if (!fullName) return '';
-    return getInitials(fullName);
-  };
-
-  const getUserEmail = () => {
-    return profile?.email || auth.user?.email || '';
+  const getInitials = () => {
+    if (!auth.user?.fullName) return '';
+    const nameParts = auth.user.fullName.trim().split(' ').filter(Boolean);
+    
+    if (nameParts.length === 0) return '';
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    
+    // Get first and last name initials, omitting middle names
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const lastInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+    
+    return `${firstInitial}${lastInitial}`;
   };
 
   useEffect(() => {
@@ -79,7 +75,6 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
-    clearProfile(); // Clear Zustand profile store
     setShowUserMenu(false);
     setIsMenuOpen(false);
   };
@@ -152,18 +147,9 @@ export function Navbar() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* Avatar - Show image if available, otherwise show initials */}
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={getFirstName()}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-orange-500"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
-                      {getUserInitials()}
-                    </div>
-                  )}
+                  <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+                    {getInitials()}
+                  </div>
                   <span className="text-gray-700 text-base font-medium">{getFirstName()}</span>
                 </motion.button>
 
@@ -178,25 +164,8 @@ export function Navbar() {
                       transition={{ duration: 0.2 }}
                     >
                       <div className="px-4 py-3 border-b border-gray-200">
-                        <div className="flex items-center gap-3 mb-2">
-                          {avatarUrl ? (
-                            <img
-                              src={avatarUrl}
-                              alt={getFirstName()}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold text-sm">
-                              {getUserInitials()}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {profile?.fullName || auth.user?.fullName}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-500 truncate">{getUserEmail()}</p>
+                        <p className="text-sm font-medium text-gray-900">{auth.user.fullName}</p>
+                        <p className="text-sm text-gray-500 truncate">{auth.user.email}</p>
                       </div>
                       <Link
                         to="/dashboard"
@@ -271,23 +240,12 @@ export function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {/* Mobile Avatar */}
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt={getFirstName()}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
-                        {getUserInitials()}
-                      </div>
-                    )}
+                    <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+                      {getInitials()}
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {profile?.fullName || auth.user?.fullName}
-                      </p>
-                      <p className="text-xs text-gray-500">{getUserEmail()}</p>
+                      <p className="text-sm font-medium text-gray-900">{auth.user.name}</p>
+                      <p className="text-xs text-gray-500">{auth.user.email}</p>
                     </div>
                   </motion.div>
                 )}

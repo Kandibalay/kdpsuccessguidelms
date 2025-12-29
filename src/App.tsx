@@ -45,8 +45,26 @@ import { Ratings } from './pages/dashboard/Ratings';
 import { Profile } from './pages/dashboard/Profile';
 import { Settings } from './pages/dashboard/Settings';
 import { Toaster } from 'react-hot-toast';
-
+import { useProfileStore } from './store/profileStore';
+import { useEffect } from 'react';
 export default function App() {
+   const fetchProfile = useProfileStore((state) => state.fetchProfile);
+  
+    // Fetch profile on app mount if user is logged in
+    useEffect(() => {
+      const authData = localStorage.getItem('auth');
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          if (parsed.token) {
+            fetchProfile();
+          }
+        } catch (error) {
+          console.error('Failed to parse auth:', error);
+        }
+      }
+    }, [fetchProfile]);
+  
   return (
     <><Toaster
     position="top-right"

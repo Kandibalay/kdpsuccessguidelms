@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
 import Footer  from '../components/Footer';
 import toast from 'react-hot-toast';
-import axios, { AxiosError } from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 interface LoginFormData {
   email: string;
@@ -25,7 +25,7 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const { login } = useAuth();
   
   const {
     register,
@@ -33,56 +33,36 @@ export function Login() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
+  
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post<LoginResponse>(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
-        {
-          email: data.email,
-          password: data.password,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      localStorage.setItem('token', response.data.token);
+      await login({
+        email: data.email,
+        password: data.password,
+      });
 
       toast.success('Login successful 🎉');
-
-      navigate('/dashboard');
+      // ✅ navigation happens INSIDE AuthContext
     } catch (error) {
-      const err = error as AxiosError<any>;
-
-      if (err.response) {
-        // Backend error (400, 401, etc.)
-        toast.error(
-          err.response.data?.message ||
-            'Invalid email or password'
-        );
-      } else {
-        // Network error
-        toast.error('Network error. Please try again.');
-      }
-
-      console.error('Login error:', err);
+      toast.error(
+        error instanceof Error ? error.message : 'Login failed'
+      );
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Login Form Section */}
-      <div className="py-20 bg-secondary">
+      <div className="py-6 bg-secondary">
         <div className="container mx-auto px-6">
           <div className="max-w-md mx-auto">
             {/* Header */}
             <motion.div
-              className="text-center mb-10"
+              className="text-center mb-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}

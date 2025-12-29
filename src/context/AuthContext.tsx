@@ -96,40 +96,86 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (userData: LoginData): Promise<AuthResponse> => {
+//   const login = async (userData: LoginData): Promise<AuthResponse> => {
+//     try {
+//       const { data } = await axios.post<AuthResponse>('/auth/login', userData);
+
+//       if (data?.success) {
+//         const newAuth: AuthState = {
+//           user: data.user || null,
+//           token: data.token || '',
+//           message: data.message || ''
+//         };
+
+//         setAuth(newAuth);
+//         localStorage.setItem('auth', JSON.stringify(newAuth));
+//         navigate('/');
+//         return data;
+//       } else {
+//         throw new Error(data.errMsg || data.message || 'Login failed');
+//       }
+//     } catch (error) {
+//       let message = 'Login failed';
+      
+//       if (axios.isAxiosError(error)) {
+//         const axiosError = error as AxiosError<AuthResponse>;
+//         if (axiosError.response?.data) {
+//           message = axiosError.response.data.errMsg || axiosError.response.data.message || message;
+//         }
+//       } else if (error instanceof Error) {
+//         message = error.message;
+//       }
+      
+//       console.error('Login error:', message);
+//       throw new Error(message);
+//     }
+//   };
+
+const login = async (userData: LoginData): Promise<AuthResponse> => {
     try {
-      const { data } = await axios.post<AuthResponse>('/auth/signin', userData);
-
-      if (data?.success) {
-        const newAuth: AuthState = {
-          user: data.user || null,
-          token: data.token || '',
-          message: data.message || ''
-        };
-
-        setAuth(newAuth);
-        localStorage.setItem('auth', JSON.stringify(newAuth));
-        navigate('/');
-        return data;
-      } else {
-        throw new Error(data.errMsg || data.message || 'Login failed');
-      }
+      const { data } = await axios.post<AuthResponse>(
+        '/auth/login',
+        userData
+      );
+  
+      /**
+       * Some backends do NOT return `success: true`
+       * So we trust HTTP success instead
+       */
+      const newAuth: AuthState = {
+        user: data.user ?? null,
+        token: data.token ?? '',
+        message: data.message ?? ''
+      };
+  
+      // Persist auth
+      setAuth(newAuth);
+      localStorage.setItem('auth', JSON.stringify(newAuth));
+  
+      // ✅ Redirect happens here
+      navigate('/dashboard');
+  
+      return {
+        success: true,
+        user: data.user,
+        token: data.token,
+        message: data.message
+      };
     } catch (error) {
       let message = 'Login failed';
-      
+  
       if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<AuthResponse>;
-        if (axiosError.response?.data) {
-          message = axiosError.response.data.errMsg || axiosError.response.data.message || message;
-        }
-      } else if (error instanceof Error) {
-        message = error.message;
+        message =
+          error.response?.data?.errMsg ||
+          error.response?.data?.message ||
+          message;
       }
-      
+  
       console.error('Login error:', message);
       throw new Error(message);
     }
   };
+  
 
   
   const signup = async (userData: SignupData): Promise<AuthResponse> => {
@@ -285,7 +331,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       token: '',
       message: ''
     });
-    navigate('/auth/signin');
+    navigate('/login');
   };
 
   const value: AuthContextType = {

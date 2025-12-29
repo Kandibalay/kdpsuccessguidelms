@@ -38,7 +38,6 @@ export function DashboardLayout() {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
             <div className="mb-8">
-              <p className="px-3 mb-3 text-base text-gray-500  p-2"><b>Main Page</b></p>
               <ul className="space-y-1">
                 {sidebarLinks.map((link) => {
                   const Icon = link.icon;

@@ -4,13 +4,22 @@ import { GraduationCap, Sparkles, Award, Timer, TrendingUp, Play, Star, Users, C
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { hasCourseStarted, getCompletedVideoCount } from '../../utils/courseProgress';
+import { useAuth } from '../../context/AuthContext';
 
 export function Overview() {
   const [courseStarted, setCourseStarted] = useState(false);
   const [completedCount, setCompletedCount] = useState(0);
+  const { auth } = useAuth(); 
 
   const totalVideos = 14; // Total number of videos in the course
   const progressPercentage = Math.round((completedCount / totalVideos) * 100);
+
+    // Add this function to get first name only
+    const getFirstName = () => {
+      if (!auth.user?.fullName) return 'there';
+      const nameParts = auth.user.fullName.trim().split(' ').filter(Boolean);
+      return nameParts.length > 0 ? nameParts[0] : 'there';
+    };
 
   useEffect(() => {
     setCourseStarted(hasCourseStarted());
@@ -57,7 +66,7 @@ export function Overview() {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <h1 className="text-2xl text-gray-900 mb-1">Good Morning, Yungee! 👋</h1>
+        <h1 className="text-2xl text-gray-900 mb-1">Good Day, {getFirstName()}!  👋</h1>
         <p className="text-sm text-gray-600">Welcome back to your KDP journey</p>
       </motion.div>
 
