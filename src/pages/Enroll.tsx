@@ -378,11 +378,11 @@ export function Enroll() {
   return (
     <div className="min-h-screen bg-white">
       {/* Enrollment Form Section */}
-      <div className="py-20 bg-secondary">
+      <div className="py-6 bg-secondary">
         <div className="container mx-auto px-6">
           {/* Header */}
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
