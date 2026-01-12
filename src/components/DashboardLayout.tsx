@@ -11,6 +11,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { Navbar } from './Navbar';
+import { useAuth } from '../context/AuthContext';
 
 const sidebarLinks = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -23,6 +24,15 @@ const sidebarLinks = [
 
 export function DashboardLayout() {
   const location = useLocation();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // AuthContext handles everything: clear state + redirect to /login
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,9 +42,6 @@ export function DashboardLayout() {
       <div className="flex">
         {/* Sidebar */}
         <aside className="hidden lg:flex lg:flex-col bg-white border-r border-gray-200 w-64 fixed h-[calc(100vh-73px)] top-[73px]">
-          {/* Logo */}
-       
-
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
             <div className="mb-8">
@@ -79,13 +86,13 @@ export function DashboardLayout() {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="text-sm">Logout</span>
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>

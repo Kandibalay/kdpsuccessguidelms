@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Star, ThumbsUp, MessageCircle } from 'lucide-react';
 
 const courseReviews = [

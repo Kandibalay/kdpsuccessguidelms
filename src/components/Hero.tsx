@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRight, Search, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import circle from '../assets/black circle.jpg';
 
 const heroSlides = [
   {
@@ -23,20 +24,22 @@ const heroSlides = [
 
 const testimonials = [
   {
-    text: "This KDP course changed everything. I published my first book and made $2,000 in the first month!",
-    author: "Sarah Chen",
-    role: "Published Author"
-  },
-  {
     text: "DSAM's strategies are pure gold. Finally making consistent income from KDP publishing.",
-    author: "Marcus Johnson",
+    author: "David Samuel",
     role: "KDP Publisher"
   },
   {
-    text: "The step-by-step guidance made it so easy. Already published 5 books and counting!",
-    author: "Emma Williams",
-    role: "Self-Publisher"
-  }
+    text: "I never thought I could achieve this level of success. The course provided me with the tools I needed.",
+    author: "James",
+    role: "KDP Entrepreneur"
+  },
+  
+  {
+    text: "The step-by-step guidance made it so easy. constantly making over $3,000 Monthly!",
+    author: "David Peter",
+    role: "KDP-Publisher"
+  },
+  
 ];
 
 export function Hero() {
@@ -107,7 +110,7 @@ export function Hero() {
             </motion.div>
             <motion.h1 
               key={`title-${currentSlide}`}
-              className="text-white mb-6 text-6xl md:text-7xl"
+              className="text-white mb-6 text-6xl md:text-7xl "
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -148,7 +151,7 @@ export function Hero() {
             <div className="flex items-start gap-4 mb-4">
               <motion.img
                 key={`img-${currentTestimonial}`}
-                src="https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDF8fHx8MTc2NTI3NzI3MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                src={circle}
                 alt="Student"
                 className="w-12 h-12 rounded-full object-cover"
                 initial={{ scale: 0.8, opacity: 0 }}

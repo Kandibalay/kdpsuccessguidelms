@@ -114,7 +114,7 @@ export default function Contact() {
 
               <div className="space-y-6">
                 {[
-                  { icon: Mail, title: 'Email', content: 'support@kdpsuccessguide.com' },
+                  { icon: Mail, title: 'Email', content: 'odehsam555@gmail.com' },
                   { icon: Phone, title: 'Phone', content: '+234 813 381 1714' },
                   { icon: MapPin, title: 'Location', content: 'Ikeja, Lagos, Nigeria' }
                 ].map((item, index) => (

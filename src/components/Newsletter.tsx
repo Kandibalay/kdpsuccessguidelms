@@ -1,3 +1,4 @@
+import React from 'react';
 import { Mail, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -69,7 +70,7 @@ export function Newsletter() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.6 }}
             >
-              Join 3,500+ students already learning from DSAM
+              Join 100+ students already learning from DSAM
             </motion.p>
           </div>
         </motion.div>

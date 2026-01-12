@@ -17,16 +17,16 @@ export default function Footer() {
               Empowering aspiring publishers with proven KDP strategies and comprehensive training to build successful publishing businesses.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex cursor-not-allowed items-center justify-center hover:bg-primary transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex cursor-not-allowed items-center justify-center hover:bg-primary transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex cursor-not-allowed items-center justify-center hover:bg-primary transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex cursor-not-allowed items-center justify-center hover:bg-primary transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
@@ -39,8 +39,8 @@ export default function Footer() {
               <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
               <li><Link to="/courses" className="hover:text-primary transition-colors">Courses</Link></li>
               <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Free Resources</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors cursor-not-allowed">Free Resources</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors cursor-not-allowed">Help Center</a></li>
             </ul>
           </div>
 
@@ -48,11 +48,11 @@ export default function Footer() {
           <div>
             <h4 className="text-white mb-6">Course Topics</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="hover:text-primary transition-colors">KDP Basics</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Niche Research</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Book Creation</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Marketing</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Scaling</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-not-allowed">KDP Basics</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-not-allowed">Niche Research</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-not-allowed">Book Creation</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-not-allowed">Marketing</a></li>
+              <li><a className="hover:text-primary transition-colors cursor-not-allowed">Scaling</a></li>
             </ul>
           </div>
 
@@ -70,7 +70,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 flex-shrink-0 text-primary" />
-                <span>support@kdpsuccessguide.com</span>
+                <span>odehsam555@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -81,11 +81,7 @@ export default function Footer() {
           <p className="text-gray-400 text-sm">
             © 2025 KDP Success Guide by DSAM. All rights reserved.
           </p>
-          <div className="flex gap-8 text-sm">
-            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-primary transition-colors">Refund Policy</a>
-          </div>
+          
         </div>
       </div>
     </footer>

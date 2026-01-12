@@ -3,6 +3,7 @@ import { Star, Clock, Users, BookmarkPlus, PlayCircle, FileText, Video } from 'l
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
+import { Link } from 'react-router-dom';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { motion } from 'framer-motion';
@@ -145,6 +146,7 @@ export function FeaturedCourses() {
             >
               Premium Course
             </motion.div>
+            <Link to="/course-overview/695bc2ab53fc5f3b2d19915f" className="no-underline">
             <h2 className="mb-6 text-3xl md:text-4xl text-gray-900">
               KDP Success Guide by DSAM
             </h2>
@@ -178,6 +180,7 @@ export function FeaturedCourses() {
                 </motion.div>
               ))}
             </div>
+            </Link>
 
            <div className="grid grid-cols-1 lg:grid-cols-2 items-center mb-8">
            <motion.div 

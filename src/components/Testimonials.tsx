@@ -7,55 +7,57 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-coverflow';
 import { motion } from 'framer-motion';
+import circle from '../assets/black circle.jpg';
+import { Link } from 'react-router-dom';
 
 const testimonials = [
   {
     id: 1,
     text: 'DSAM\'s KDP course is incredible! I went from zero knowledge to publishing my first book in just 2 weeks. Made my investment back in the first month and now earning $3,000+ monthly. Best decision ever!',
-    author: 'Alexandra Turner',
-    role: 'Published 12 Books',
+    author: 'Ijeoma',
+    role: 'Full-Time KDP Publisher',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1564247556387-6e97f44aa0cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHJlYWRpbmclMjBib29rfGVufDF8fHx8MTc2NTM2MDA5Mnww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   },
   {
     id: 2,
-    text: 'The strategies in this course are gold. DSAM breaks down everything step-by-step. I\'m now making passive income every month from my KDP books. Highly recommend to anyone serious about publishing!',
-    author: 'Michael Park',
+    text: 'Dsam’s course in 2025 changed my finances. Within my first month, I earned my first $20 and scaled using the strategies taught, making over $1,000 on my first account and running multiple accounts today.',
+    author: 'David Samuel',
     role: 'Full-Time KDP Publisher',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDF8fHx8MTc2NTI3NzI3MXww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   },
   {
     id: 3,
-    text: 'I was skeptical at first, but this course exceeded all expectations. The niche research methods alone are worth 10x the price. Published 8 books so far and consistently making sales every day!',
-    author: 'Sophia Martinez',
+    text: 'I was skeptical at first, but this course exceeded all expectations. The niche research methods alone are worth 10x the price. Having two best seller accounts is something I didn\'t think was achievable this fast.',
+    author: 'Vellz',
     role: 'KDP Success Story',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjbGFzc3Jvb218ZW58MXx8fHwxNzY1MzE2MDI5fDA&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   },
   {
     id: 4,
-    text: 'This course transformed my life! I quit my 9-5 job and now make more from KDP than I ever did. The marketing module alone is worth thousands. Thank you DSAM!',
-    author: 'James Rodriguez',
+    text: 'After two years in KDP earning $300–$400 monthly, joining DSAM’s Inner Circle Cohort became the turning point. Since then, earnings have consistently averaged over $3,000 per month.',
+    author: 'David Peter',
     role: 'Published 20+ Books',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDF8fHx8MTc2NTI3NzI3MXww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   },
   {
     id: 5,
-    text: 'Finally a course that delivers on its promises. Clear, actionable steps that actually work. I\'ve published 6 books and each one is making consistent sales. Couldn\'t be happier!',
-    author: 'Emily Chen',
+    text: 'Finally a course that delivers on its promises. Clear, actionable steps that actually work. I\'ve published more than 10 books and each one is making consistent sales. Couldn\'t be happier!',
+    author: 'Prosper Eze',
     role: 'KDP Entrepreneur',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1564247556387-6e97f44aa0cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHJlYWRpbmclMjBib29rfGVufDF8fHx8MTc2NTM2MDA5Mnww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   },
   {
     id: 6,
     text: 'Best investment I\'ve ever made. The community support and ongoing updates make this course worth every penny. Already earned back 10x what I paid!',
-    author: 'David Thompson',
+    author: 'James',
     role: 'Published Author',
     rating: 5,
-    image: 'https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDF8fHx8MTc2NTI3NzI3MXww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: circle
   }
 ];
 
@@ -118,7 +120,7 @@ export function Testimonials() {
                 className="bg-white rounded-2xl p-8 hover:shadow-xl transition-all duration-300 relative border-2 border-transparent hover:border-orange-200 h-full"
                 whileHover={{ y: -10 }}
               >
-                <Quote className="w-12 h-12 text-orange-500/20 mb-6" />
+                <Quote className="w-10 h-10 text-orange-500/20 mb-6" />
 
                 <div className="flex gap-1 mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
@@ -165,6 +167,12 @@ export function Testimonials() {
           color: #F97316;
         }
       `}</style>
+
+        <Link to="/testimonials" className='flex items-center mx-auto justify-center'>
+          <div className='mt-8 inline-block  text-center bg-orange-500 text-white px-6 py-3 rounded-xl hover:bg-orange-600 transition-colors'>
+            View More Testimonials
+          </div>
+        </Link>
     </section>
   );
 }
