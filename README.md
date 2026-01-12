@@ -1,5 +1,5 @@
 
-  # LMS Landing Page
+  # KDP Success Guide
 
   This is a code bundle for KDP Success Guide webapp. Created by Ganiyat and Promise
   
