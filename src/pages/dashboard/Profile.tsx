@@ -3,9 +3,7 @@ import { motion } from 'motion/react';
 import { useForm } from 'react-hook-form';
 import { Camera, Mail, User, Phone, MapPin, Calendar, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useProfileStore } from '../../store/profileStore';
 import { useAuth } from '../../context/AuthContext';
-
 
 type ProfileFormData = {
   phoneNumber: string;
@@ -15,22 +13,23 @@ type ProfileFormData = {
 };
 
 export function Profile() {
-  const profile = useProfileStore((state) => state.profile);
-  const avatarUrl = useProfileStore((state) => state.avatarUrl);
-  const isLoading = useProfileStore((state) => state.isLoading);
-  const fetchProfile = useProfileStore((state) => state.fetchProfile);
-  const updateProfile = useProfileStore((state) => state.updateProfile);
-  const updateAvatar = useProfileStore((state) => state.updateAvatar);
-  const getInitials = useProfileStore((state) => state.getInitials);
+  const { 
+    auth, 
+    profile, 
+    avatarUrl, 
+    isLoadingProfile, 
+    fetchProfile, 
+    updateProfile, 
+    updateAvatar, 
+    getInitials 
+  } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
-  const { auth } = useAuth();
   const user = auth.user;
-  
 
   const {
     register,
@@ -41,10 +40,10 @@ export function Profile() {
 
   // Fetch profile on mount if not loaded
   useEffect(() => {
-    if (!profile) {
+    if (!profile && auth.user && auth.token) {
       fetchProfile();
     }
-  }, [profile, fetchProfile]);
+  }, [profile, auth.user, auth.token, fetchProfile]);
 
   // Update form when profile loads
   useEffect(() => {
@@ -112,14 +111,14 @@ export function Profile() {
         dateOfBirth: data.dateOfBirth,
       });
     } catch (error) {
-      // Error handled in store
+      // Error handled in AuthContext
     } finally {
       setIsSubmitting(false);
       setIsUploadingAvatar(false);
     }
   };
 
-  if (isLoading && !profile) {
+  if (isLoadingProfile && !profile) {
     return (
       <div className="max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
         <div className="text-center">

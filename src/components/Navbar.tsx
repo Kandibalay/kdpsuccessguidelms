@@ -1,10 +1,822 @@
+// import React from 'react';
+// import { Menu, X, LogOut, User as UserIcon } from 'lucide-react';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { useAuth } from '../context/AuthContext'; 
+// import { useProfileStore } from '../store/profileStore';
+// import logo from '../assets/Sam Logo.jpg';
+
+// export function Navbar() {
+//   const [isMenuOpen, setIsMenuOpen] = useState(false);
+//   const [scrolled, setScrolled] = useState(false);
+//   const [showUserMenu, setShowUserMenu] = useState(false);
+//   const location = useLocation();
+//   const { auth, logout } = useAuth();
+  
+//   // Get profile data from Zustand store
+//   const profile = useProfileStore((state) => state.profile);
+//   const avatarUrl = useProfileStore((state) => state.avatarUrl);
+//   const getInitials = useProfileStore((state) => state.getInitials);
+//   const clearProfile = useProfileStore((state) => state.clearProfile);
+
+//   const isAuthenticated = Boolean(auth?.user && auth?.token);
+
+//   const navLinks = [
+//     { href: '/', label: 'Home' },
+//     { href: '/courses', label: 'Courses' },
+//     { href: '/contact', label: 'Contact' },
+//   ];
+
+//   const isActive = (path: string) => location.pathname === path;
+
+//   // Get first name and initial
+//   // const getFirstName = () => {
+//   //   const fullName = profile?.fullName || auth.user?.fullName;
+//   //   if (!fullName) return '';
+//   //   const nameParts = fullName.trim().split(' ').filter(Boolean);
+    
+//   //   if (nameParts.length === 0) return '';
+//   //   if (nameParts.length === 1) return nameParts[0];
+    
+//   //   // Return first and last name only, omitting middle names
+//   //   return `${nameParts[0]} ${nameParts[nameParts.length - 1]}`;
+//   // };
+
+//   // const getUserInitials = () => {
+//   //   const fullName = profile?.fullName || auth.user?.fullName;
+//   //   if (!fullName) return '';
+//   //   return getInitials(fullName);
+//   // };
+
+//   // const getUserEmail = () => {
+//   //   return profile?.email || auth.user?.email || '';
+//   // };
+
+//   const getFirstName = () => {
+//     if (!isAuthenticated) return '';
+//     const fullName = profile?.fullName || auth.user?.fullName;
+//     return fullName?.trim().split(' ')[0] || '';
+//   };
+
+//   const getUserInitials = () => {
+//     if (!isAuthenticated) return '';
+//     const fullName = profile?.fullName || auth.user?.fullName;
+//     return fullName ? getInitials(fullName) : '';
+//   };
+
+//   const getUserEmail = () => {
+//     if (!isAuthenticated) return '';
+//     return profile?.email || auth.user?.email || '';
+//   };
+
+
+//    useEffect(() => {
+//       const handleScroll = () => setScrolled(window.scrollY > 20);
+//       window.addEventListener('scroll', handleScroll);
+//       return () => window.removeEventListener('scroll', handleScroll);
+//     }, []);
+  
+//     // Auto-close menus when auth is lost (remote logout, token expiry)
+//     useEffect(() => {
+//       if (!isAuthenticated) {
+//         setShowUserMenu(false);
+//         setIsMenuOpen(false);
+//       }
+//     }, [isAuthenticated]);
+  
+//     // Close user menu when clicking outside
+//     useEffect(() => {
+//       if (!showUserMenu) return;
+  
+//       const handleClickOutside = (event: MouseEvent) => {
+//         const target = event.target as HTMLElement;
+//         if (!target.closest('.user-menu-container')) {
+//           setShowUserMenu(false);
+//         }
+//       };
+  
+//       document.addEventListener('click', handleClickOutside);
+//       return () => document.removeEventListener('click', handleClickOutside);
+//     }, [showUserMenu]);
+  
+//     /* ===================== ACTIONS ===================== */
+  
+//     const handleLogout = async () => {
+//       try {
+//         setShowUserMenu(false);
+//         setIsMenuOpen(false);
+//         await logout();
+//       } catch (error) {
+//         console.error('Logout failed:', error);
+//       }
+//     };
+  
+//     /* ===================== RENDER ===================== */
+//   return (
+//     <motion.nav
+//       className={`bg-white sticky top-0 z-50 transition-shadow ${
+//         scrolled ? 'shadow-md' : 'shadow-sm'
+//       }`}
+//       initial={{ y: -100 }}
+//       animate={{ y: 0 }}
+//       transition={{ duration: 0.5 }}
+//     >
+//       <div className="container mx-auto px-6 py-2">
+//         <div className="flex items-center justify-between">
+//           <Link to="/" className="flex items-center gap-3">
+//             <motion.img
+//               src={logo}
+//               alt="KDP Success Guide"
+//               className="h-12 w-28"
+//               whileHover={{ scale: 1.05 }}
+//               transition={{ duration: 0.3 }}
+//             />
+//           </Link>
+
+//           {/* Desktop Navigation */}
+//           <div className="hidden md:flex items-center gap-8">
+//             {navLinks.map((link, index) => (
+//               <motion.div
+//                 key={link.href}
+//                 initial={{ opacity: 0, y: -20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.5, delay: index * 0.1 }}
+//               >
+//                 <Link
+//                   to={link.href}
+//                   className={`transition-colors relative ${
+//                     isActive(link.href)
+//                       ? 'text-primary'
+//                       : 'text-gray-700 hover:text-primary'
+//                   }`}
+//                 >
+//                   {link.label}
+//                   {isActive(link.href) && (
+//                     <motion.div
+//                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary"
+//                       layoutId="navbar-indicator"
+//                       initial={false}
+//                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+//                     />
+//                   )}
+//                 </Link>
+//               </motion.div>
+//             ))}
+//           </div>
+
+//           {/* Desktop Auth Section */}
+//           <motion.div
+//             className="hidden md:flex items-center gap-4"
+//             initial={{ opacity: 0, x: 20 }}
+//             animate={{ opacity: 1, x: 0 }}
+//             transition={{ duration: 0.5, delay: 0.3 }}
+//           >
+//             {isAuthenticated ? (
+//               // Authenticated User Menu
+//               <div className="relative user-menu-container">
+//                 <motion.button
+//                   onClick={() => setShowUserMenu(!showUserMenu)}
+//                   className="flex items-center gap-3 px-4 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+//                   whileHover={{ scale: 1.02 }}
+//                   whileTap={{ scale: 0.98 }}
+//                 >
+//                   {/* Avatar - Show image if available, otherwise show initials */}
+//                   {avatarUrl ? (
+//                     <img
+//                       src={avatarUrl}
+//                       alt={getFirstName()}
+//                       className="w-12 h-12 rounded-full object-cover border-2 border-orange-500"
+//                     />
+//                   ) : (
+//                     <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+//                       {getUserInitials()}
+//                     </div>
+//                   )}
+//                   <span className="text-gray-700 text-base font-medium">{getFirstName()}</span>
+//                 </motion.button>
+
+//                 {/* Dropdown Menu */}
+//                 <AnimatePresence>
+//                   {showUserMenu && (
+//                     <motion.div
+//                       className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       exit={{ opacity: 0, y: -10 }}
+//                       transition={{ duration: 0.2 }}
+//                     >
+//                       <div className="px-4 py-3 border-b border-gray-200">
+//                         <div className="flex items-center gap-3 mb-2">
+//                           {avatarUrl ? (
+//                             <img
+//                               src={avatarUrl}
+//                               alt={getFirstName()}
+//                               className="w-10 h-10 rounded-full object-cover"
+//                             />
+//                           ) : (
+//                             <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold text-sm">
+//                               {getUserInitials()}
+//                             </div>
+//                           )}
+//                           <div className="flex-1 min-w-0">
+//                             <p className="text-sm font-medium text-gray-900 truncate">
+//                               {profile?.fullName || auth.user?.fullName}
+//                             </p>
+//                           </div>
+//                         </div>
+//                         <p className="text-sm text-gray-500 truncate">{getUserEmail()}</p>
+//                       </div>
+//                       <Link
+//                         to="/dashboard"
+//                         className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+//                         onClick={() => setShowUserMenu(false)}
+//                       >
+//                         <UserIcon className="w-4 h-4 text-gray-500" />
+//                         <span className="text-sm text-gray-700">Dashboard</span>
+//                       </Link>
+//                       <button
+//                         onClick={handleLogout}
+//                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-200"
+//                       >
+//                         <LogOut className="w-4 h-4 text-gray-500" />
+//                         <span className="text-sm text-gray-700">Log out</span>
+//                       </button>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+//             ) : (
+//               // Guest Buttons
+//               <>
+//                 <Link to="/login">
+//                   <motion.button
+//                     className="text-gray-700 hover:text-primary transition-colors px-4 py-2 border-2 border-primary rounded-lg"
+//                     whileHover={{ scale: 1.05 }}
+//                     whileTap={{ scale: 0.95 }}
+//                   >
+//                     Log in
+//                   </motion.button>
+//                 </Link>
+//                 <Link to="/enroll">
+//                   <motion.button
+//                     className="bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
+//                     whileHover={{ scale: 1.05 }}
+//                     whileTap={{ scale: 0.95 }}
+//                   >
+//                     Sign Up
+//                   </motion.button>
+//                 </Link>
+//               </>
+//             )}
+//           </motion.div>
+
+//           {/* Mobile Menu Button */}
+//           <motion.button
+//             className="md:hidden text-gray-700"
+//             onClick={() => setIsMenuOpen(!isMenuOpen)}
+//             whileTap={{ scale: 0.9 }}
+//           >
+//             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+//           </motion.button>
+//         </div>
+
+//         {/* Mobile Navigation */}
+//         <AnimatePresence>
+//           {isMenuOpen && (
+//             <motion.div
+//               className="md:hidden mt-4 py-4 border-t border-gray-200"
+//               initial={{ opacity: 0, height: 0 }}
+//               animate={{ opacity: 1, height: 'auto' }}
+//               exit={{ opacity: 0, height: 0 }}
+//               transition={{ duration: 0.3 }}
+//             >
+//               <div className="flex flex-col gap-4">
+//                 {/* Mobile User Info */}
+//                 {isAuthenticated && (
+//                   <motion.div
+//                     className="flex items-center gap-3 pb-4 border-b border-gray-200"
+//                     initial={{ opacity: 0, x: -20 }}
+//                     animate={{ opacity: 1, x: 0 }}
+//                     transition={{ duration: 0.3 }}
+//                   >
+//                     {/* Mobile Avatar */}
+//                     {avatarUrl ? (
+//                       <img
+//                         src={avatarUrl}
+//                         alt={getFirstName()}
+//                         className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+//                       />
+//                     ) : (
+//                       <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+//                         {getUserInitials()}
+//                       </div>
+//                     )}
+//                     <div>
+//                       <p className="text-sm font-medium text-gray-900">
+//                         {profile?.fullName || auth.user?.fullName}
+//                       </p>
+//                       <p className="text-xs text-gray-500">{getUserEmail()}</p>
+//                     </div>
+//                   </motion.div>
+//                 )}
+
+//                 {/* Mobile Nav Links */}
+//                 {navLinks.map((link, index) => (
+//                   <motion.div
+//                     key={link.href}
+//                     initial={{ opacity: 0, x: -20 }}
+//                     animate={{ opacity: 1, x: 0 }}
+//                     transition={{ duration: 0.3, delay: index * 0.1 }}
+//                   >
+//                     <Link
+//                       to={link.href}
+//                       className={`transition-colors ${
+//                         isActive(link.href)
+//                           ? 'text-primary'
+//                           : 'text-gray-700 hover:text-primary'
+//                       }`}
+//                       onClick={() => setIsMenuOpen(false)}
+//                     >
+//                       {link.label}
+//                     </Link>
+//                   </motion.div>
+//                 ))}
+
+//                 {/* Mobile Auth Buttons */}
+//                 {isAuthenticated ? (
+//                   <>
+//                     <Link to="/dashboard">
+//                       <motion.button
+//                         className="w-full text-left text-gray-700 hover:text-primary transition-colors border-2 border-primary rounded-lg px-4 py-2 flex items-center gap-2"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.3 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         <UserIcon className="w-4 h-4" />
+//                         Dashboard
+//                       </motion.button>
+//                     </Link>
+//                     <motion.button
+//                       onClick={handleLogout}
+//                       className="w-full text-left bg-red-500 text-white px-6 py-2.5 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+//                       initial={{ opacity: 0, x: -20 }}
+//                       animate={{ opacity: 1, x: 0 }}
+//                       transition={{ duration: 0.3, delay: 0.4 }}
+//                       whileTap={{ scale: 0.95 }}
+//                     >
+//                       <LogOut className="w-4 h-4" />
+//                       Log out
+//                     </motion.button>
+//                   </>
+//                 ) : (
+//                   <>
+//                     <Link to="/login">
+//                       <motion.button
+//                         className="w-full text-gray-700 hover:text-primary transition-colors text-left border-2 border-primary rounded-lg px-4 py-2"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.3 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         Log in
+//                       </motion.button>
+//                     </Link>
+//                     <Link to="/enroll">
+//                       <motion.button
+//                         className="w-full bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.4 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         Sign Up
+//                       </motion.button>
+//                     </Link>
+//                   </>
+//                 )}
+//               </div>
+//             </motion.div>
+//           )}
+//         </AnimatePresence>
+//       </div>
+//     </motion.nav>
+//   );
+// }
+
+
+
+// import React from 'react';
+// import { Menu, X, LogOut, User as UserIcon } from 'lucide-react';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { useAuth } from '../context/AuthContext'; 
+// import { useProfileStore } from '../store/profileStore';
+// import logo from '../assets/Sam Logo.jpg';
+
+// export function Navbar() {
+//   const [isMenuOpen, setIsMenuOpen] = useState(false);
+//   const [scrolled, setScrolled] = useState(false);
+//   const [showUserMenu, setShowUserMenu] = useState(false);
+//   const location = useLocation();
+//   const { auth, isAuthenticated, logout } = useAuth(); // Use isAuthenticated
+  
+//   // Get profile data from Zustand store (only for UI display)
+//   const profile = useProfileStore((state) => state.profile);
+//   const avatarUrl = useProfileStore((state) => state.avatarUrl);
+//   const getInitials = useProfileStore((state) => state.getInitials);
+//   // ✅ REMOVED clearProfile - AuthContext handles it automatically
+
+//   // const navLinks = [
+//   //   { href: '/', label: 'Home' },
+//   //   { href: '/courses', label: 'Courses' },
+//   //   { href: '/contact', label: 'Contact' },
+//   // ];
+
+//   const navLinks = React.useMemo(() => ([
+//     { href: '/', label: 'Home' },
+//     { href: '/courses', label: 'Courses' },
+//     { href: '/contact', label: 'Contact' },
+//   ]), []);
+
+//   const isActive = (path: string) => location.pathname === path;
+
+//   // Get first name and initial
+//   const getFirstName = () => {
+//     if (!isAuthenticated) return '';
+//     const fullName = profile?.fullName || auth.user?.fullName;
+//     if (!fullName) return '';
+//     const nameParts = fullName.trim().split(' ').filter(Boolean);
+    
+//     if (nameParts.length === 0) return '';
+//     if (nameParts.length === 1) return nameParts[0];
+    
+//     // Return first and last name only, omitting middle names
+//     return `${nameParts[0]} ${nameParts[nameParts.length - 1]}`;
+//   };
+
+//   const getUserInitials = () => {
+//     if (!isAuthenticated) return '';
+//     const fullName = profile?.fullName || auth.user?.fullName;
+//     if (!fullName) return '';
+//     return getInitials(fullName);
+//   };
+
+//   const getUserEmail = () => {
+//     if (!isAuthenticated) return '';
+//     return profile?.email || auth.user?.email || '';
+//   };
+
+//   useEffect(() => {
+//     if (!isAuthenticated) {
+//       setShowUserMenu(false);
+//       setIsMenuOpen(false);
+//     }
+//   }, [isAuthenticated]);
+  
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 20);
+//     };
+//     window.addEventListener('scroll', handleScroll);
+//     return () => window.removeEventListener('scroll', handleScroll);
+//   }, []);
+
+//   // Close user menu when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event: MouseEvent) => {
+//       const target = event.target as HTMLElement;
+//       if (!target.closest('.user-menu-container')) {
+//         setShowUserMenu(false);
+//       }
+//     };
+
+//     if (showUserMenu) {
+//       document.addEventListener('click', handleClickOutside);
+//     }
+
+//     return () => {
+//       document.removeEventListener('click', handleClickOutside);
+//     };
+//   }, [showUserMenu]);
+
+//   const handleLogout = async () => {
+//     try {
+//       setShowUserMenu(false);
+//       setIsMenuOpen(false);
+//       // ✅ REMOVED clearProfile() - AuthContext handles it automatically when isAuthenticated becomes false
+//       await logout(); // Just call logout, everything else is automatic
+//     } catch (error) {
+//       console.error('Logout failed:', error);
+//     }
+//   };
+
+//   return (
+//     <motion.nav
+//       className={`bg-white sticky top-0 z-50 transition-shadow ${
+//         scrolled ? 'shadow-md' : 'shadow-sm'
+//       }`}
+//       initial={{ y: -100 }}
+//       animate={{ y: 0 }}
+//       transition={{ duration: 0.5 }}
+//     >
+//       <div className="container mx-auto px-6 py-2">
+//         <div className="flex items-center justify-between">
+//           <Link to="/" className="flex items-center gap-3">
+//             <motion.img
+//               src={logo}
+//               alt="KDP Success Guide"
+//               className="h-12 w-28"
+//               whileHover={{ scale: 1.05 }}
+//               transition={{ duration: 0.3 }}
+//             />
+//           </Link>
+
+//           {/* Desktop Navigation */}
+//           <div className="hidden md:flex items-center gap-8">
+//             {navLinks.map((link, index) => (
+//               <motion.div
+//                 key={link.href}
+//                 initial={{ opacity: 0, y: -20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.5, delay: index * 0.1 }}
+//               >
+//                 <Link
+//                   to={link.href}
+//                   className={`transition-colors relative ${
+//                     isActive(link.href)
+//                       ? 'text-primary'
+//                       : 'text-gray-700 hover:text-primary'
+//                   }`}
+//                 >
+//                   {link.label}
+//                   {isActive(link.href) && (
+//                     <motion.div
+//                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary"
+//                       layoutId="navbar-indicator"
+//                       initial={false}
+//                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+//                     />
+//                   )}
+//                 </Link>
+//               </motion.div>
+//             ))}
+//           </div>
+
+//           {/* Desktop Auth Section - Using isAuthenticated */}
+//           <motion.div
+//             className="hidden md:flex items-center gap-4"
+//             initial={{ opacity: 0, x: 20 }}
+//             animate={{ opacity: 1, x: 0 }}
+//             transition={{ duration: 0.5, delay: 0.3 }}
+//           >
+//             {isAuthenticated ? (
+//               // Authenticated User Menu
+//               <div className="relative user-menu-container">
+//                 <motion.button
+//                   onClick={() => setShowUserMenu(!showUserMenu)}
+//                   className="flex items-center gap-3 px-4 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+//                   whileHover={{ scale: 1.02 }}
+//                   whileTap={{ scale: 0.98 }}
+//                 >
+//                   {/* Avatar - Show image if available, otherwise show initials */}
+//                   {avatarUrl ? (
+//                     <img
+//                       src={avatarUrl}
+//                       alt={getFirstName()}
+//                       className="w-12 h-12 rounded-full object-cover border-2 border-orange-500"
+//                     />
+//                   ) : (
+//                     <div className="w-12 h-12 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+//                       {getUserInitials()}
+//                     </div>
+//                   )}
+//                   <span className="text-gray-700 text-base font-medium">{getFirstName()}</span>
+//                 </motion.button>
+
+//                 {/* Dropdown Menu */}
+//                 <AnimatePresence>
+//                   {showUserMenu && (
+//                     <motion.div
+//                       className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       exit={{ opacity: 0, y: -10 }}
+//                       transition={{ duration: 0.2 }}
+//                     >
+//                       <div className="px-4 py-3 border-b border-gray-200">
+//                         <div className="flex items-center gap-3 mb-2">
+//                           {avatarUrl ? (
+//                             <img
+//                               src={avatarUrl}
+//                               alt={getFirstName()}
+//                               className="w-10 h-10 rounded-full object-cover"
+//                             />
+//                           ) : (
+//                             <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold text-sm">
+//                               {getUserInitials()}
+//                             </div>
+//                           )}
+//                           <div className="flex-1 min-w-0">
+//                             <p className="text-sm font-medium text-gray-900 truncate">
+//                               {profile?.fullName || auth.user?.fullName}
+//                             </p>
+//                           </div>
+//                         </div>
+//                         <p className="text-sm text-gray-500 truncate">{getUserEmail()}</p>
+//                       </div>
+//                       <Link
+//                         to="/dashboard"
+//                         className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+//                         onClick={() => setShowUserMenu(false)}
+//                       >
+//                         <UserIcon className="w-4 h-4 text-gray-500" />
+//                         <span className="text-sm text-gray-700">Dashboard</span>
+//                       </Link>
+//                       <button
+//                         onClick={handleLogout}
+//                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-200"
+//                       >
+//                         <LogOut className="w-4 h-4 text-gray-500" />
+//                         <span className="text-sm text-gray-700">Log out</span>
+//                       </button>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+//             ) : (
+//               // Guest Buttons
+//               <>
+//                 <Link to="/login">
+//                   <motion.button
+//                     className="text-gray-700 hover:text-primary transition-colors px-4 py-2 border-2 border-primary rounded-lg"
+//                     whileHover={{ scale: 1.05 }}
+//                     whileTap={{ scale: 0.95 }}
+//                   >
+//                     Log in
+//                   </motion.button>
+//                 </Link>
+//                 <Link to="/enroll">
+//                   <motion.button
+//                     className="bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
+//                     whileHover={{ scale: 1.05 }}
+//                     whileTap={{ scale: 0.95 }}
+//                   >
+//                     Sign Up
+//                   </motion.button>
+//                 </Link>
+//               </>
+//             )}
+//           </motion.div>
+
+//           {/* Mobile Menu Button */}
+//           <motion.button
+//             className="md:hidden text-gray-700"
+//             onClick={() => setIsMenuOpen(!isMenuOpen)}
+//             whileTap={{ scale: 0.9 }}
+//           >
+//             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+//           </motion.button>
+//         </div>
+
+//         {/* Mobile Navigation */}
+//         <AnimatePresence>
+//           {isMenuOpen && (
+//             <motion.div
+//               className="md:hidden mt-4 py-4 border-t border-gray-200"
+//               initial={{ opacity: 0, height: 0 }}
+//               animate={{ opacity: 1, height: 'auto' }}
+//               exit={{ opacity: 0, height: 0 }}
+//               transition={{ duration: 0.3 }}
+//             >
+//               <div className="flex flex-col gap-4">
+//                 {/* Mobile User Info - Using isAuthenticated */}
+//                 {isAuthenticated && (
+//                   <motion.div
+//                     className="flex items-center gap-3 pb-4 border-b border-gray-200"
+//                     initial={{ opacity: 0, x: -20 }}
+//                     animate={{ opacity: 1, x: 0 }}
+//                     transition={{ duration: 0.3 }}
+//                   >
+//                     {/* Mobile Avatar */}
+//                     {avatarUrl ? (
+//                       <img
+//                         src={avatarUrl}
+//                         alt={getFirstName()}
+//                         className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+//                       />
+//                     ) : (
+//                       <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold">
+//                         {getUserInitials()}
+//                       </div>
+//                     )}
+//                     <div>
+//                       <p className="text-sm font-medium text-gray-900">
+//                         {profile?.fullName || auth.user?.fullName}
+//                       </p>
+//                       <p className="text-xs text-gray-500">{getUserEmail()}</p>
+//                     </div>
+//                   </motion.div>
+//                 )}
+
+//                 {/* Mobile Nav Links */}
+//                 {navLinks.map((link, index) => (
+//                   <motion.div
+//                     key={link.href}
+//                     initial={{ opacity: 0, x: -20 }}
+//                     animate={{ opacity: 1, x: 0 }}
+//                     transition={{ duration: 0.3, delay: index * 0.1 }}
+//                   >
+//                     <Link
+//                       to={link.href}
+//                       className={`transition-colors ${
+//                         isActive(link.href)
+//                           ? 'text-primary'
+//                           : 'text-gray-700 hover:text-primary'
+//                       }`}
+//                       onClick={() => setIsMenuOpen(false)}
+//                     >
+//                       {link.label}
+//                     </Link>
+//                   </motion.div>
+//                 ))}
+
+//                 {/* Mobile Auth Buttons - Using isAuthenticated */}
+//                 {isAuthenticated ? (
+//                   <>
+//                     <Link to="/dashboard">
+//                       <motion.button
+//                         className="w-full text-left text-gray-700 hover:text-primary transition-colors border-2 border-primary rounded-lg px-4 py-2 flex items-center gap-2"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.3 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         <UserIcon className="w-4 h-4" />
+//                         Dashboard
+//                       </motion.button>
+//                     </Link>
+//                     <motion.button
+//                       onClick={handleLogout}
+//                       className="w-full text-left bg-red-500 text-white px-6 py-2.5 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+//                       initial={{ opacity: 0, x: -20 }}
+//                       animate={{ opacity: 1, x: 0 }}
+//                       transition={{ duration: 0.3, delay: 0.4 }}
+//                       whileTap={{ scale: 0.95 }}
+//                     >
+//                       <LogOut className="w-4 h-4" />
+//                       Log out
+//                     </motion.button>
+//                   </>
+//                 ) : (
+//                   <>
+//                     <Link to="/login">
+//                       <motion.button
+//                         className="w-full text-gray-700 hover:text-primary transition-colors text-left border-2 border-primary rounded-lg px-4 py-2"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.3 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         Log in
+//                       </motion.button>
+//                     </Link>
+//                     <Link to="/enroll">
+//                       <motion.button
+//                         className="w-full bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
+//                         initial={{ opacity: 0, x: -20 }}
+//                         animate={{ opacity: 1, x: 0 }}
+//                         transition={{ duration: 0.3, delay: 0.4 }}
+//                         whileTap={{ scale: 0.95 }}
+//                         onClick={() => setIsMenuOpen(false)}
+//                       >
+//                         Sign Up
+//                       </motion.button>
+//                     </Link>
+//                   </>
+//                 )}
+//               </div>
+//             </motion.div>
+//           )}
+//         </AnimatePresence>
+//       </div>
+//     </motion.nav>
+//   );
+// }
+
 import React from 'react';
 import { Menu, X, LogOut, User as UserIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext'; 
-import { useProfileStore } from '../store/profileStore';
 import logo from '../assets/Sam Logo.jpg';
 
 export function Navbar() {
@@ -12,24 +824,19 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const location = useLocation();
-  const { auth, logout } = useAuth();
-  
-  // Get profile data from Zustand store
-  const profile = useProfileStore((state) => state.profile);
-  const avatarUrl = useProfileStore((state) => state.avatarUrl);
-  const getInitials = useProfileStore((state) => state.getInitials);
-  const clearProfile = useProfileStore((state) => state.clearProfile);
+  const { auth, isAuthenticated, profile, avatarUrl, getInitials, logout } = useAuth();
 
-  const navLinks = [
+  const navLinks = React.useMemo(() => ([
     { href: '/', label: 'Home' },
     { href: '/courses', label: 'Courses' },
     { href: '/contact', label: 'Contact' },
-  ];
+  ]), []);
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Get first name and initial
+  // Get first name and last name
   const getFirstName = () => {
+    if (!isAuthenticated) return '';
     const fullName = profile?.fullName || auth.user?.fullName;
     if (!fullName) return '';
     const nameParts = fullName.trim().split(' ').filter(Boolean);
@@ -42,15 +849,24 @@ export function Navbar() {
   };
 
   const getUserInitials = () => {
+    if (!isAuthenticated) return '';
     const fullName = profile?.fullName || auth.user?.fullName;
     if (!fullName) return '';
     return getInitials(fullName);
   };
 
   const getUserEmail = () => {
+    if (!isAuthenticated) return '';
     return profile?.email || auth.user?.email || '';
   };
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setShowUserMenu(false);
+      setIsMenuOpen(false);
+    }
+  }, [isAuthenticated]);
+  
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -77,11 +893,14 @@ export function Navbar() {
     };
   }, [showUserMenu]);
 
-  const handleLogout = () => {
-    logout();
-    clearProfile(); // Clear Zustand profile store
-    setShowUserMenu(false);
-    setIsMenuOpen(false);
+  const handleLogout = async () => {
+    try {
+      setShowUserMenu(false);
+      setIsMenuOpen(false);
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
@@ -143,7 +962,7 @@ export function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {auth.user ? (
+            {isAuthenticated ? (
               // Authenticated User Menu
               <div className="relative user-menu-container">
                 <motion.button
@@ -171,7 +990,7 @@ export function Navbar() {
                 <AnimatePresence>
                   {showUserMenu && (
                     <motion.div
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+                      className="absolute right-0 mt-2 w-72  bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
@@ -196,7 +1015,7 @@ export function Navbar() {
                             </p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500 truncate">{getUserEmail()}</p>
+                        {/* <p className="text-sm text-gray-500 truncate">{getUserEmail()}</p> */}
                       </div>
                       <Link
                         to="/dashboard"
@@ -220,7 +1039,7 @@ export function Navbar() {
             ) : (
               // Guest Buttons
               <>
-                <Link to="/login">
+                <Link to="/auth/login">
                   <motion.button
                     className="text-gray-700 hover:text-primary transition-colors px-4 py-2 border-2 border-primary rounded-lg"
                     whileHover={{ scale: 1.05 }}
@@ -229,7 +1048,7 @@ export function Navbar() {
                     Log in
                   </motion.button>
                 </Link>
-                <Link to="/enroll">
+                <Link to="/auth/enroll">
                   <motion.button
                     className="bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
                     whileHover={{ scale: 1.05 }}
@@ -264,7 +1083,7 @@ export function Navbar() {
             >
               <div className="flex flex-col gap-4">
                 {/* Mobile User Info */}
-                {auth.user && (
+                {isAuthenticated && (
                   <motion.div
                     className="flex items-center gap-3 pb-4 border-b border-gray-200"
                     initial={{ opacity: 0, x: -20 }}
@@ -315,7 +1134,7 @@ export function Navbar() {
                 ))}
 
                 {/* Mobile Auth Buttons */}
-                {auth.user ? (
+                {isAuthenticated ? (
                   <>
                     <Link to="/dashboard">
                       <motion.button
@@ -344,7 +1163,7 @@ export function Navbar() {
                   </>
                 ) : (
                   <>
-                    <Link to="/login">
+                    <Link to="/auth/login">
                       <motion.button
                         className="w-full text-gray-700 hover:text-primary transition-colors text-left border-2 border-primary rounded-lg px-4 py-2"
                         initial={{ opacity: 0, x: -20 }}
@@ -356,7 +1175,7 @@ export function Navbar() {
                         Log in
                       </motion.button>
                     </Link>
-                    <Link to="/enroll">
+                    <Link to="/auth/enroll">
                       <motion.button
                         className="w-full bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 transition-colors"
                         initial={{ opacity: 0, x: -20 }}
