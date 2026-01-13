@@ -105,6 +105,7 @@ import { Toaster } from 'react-hot-toast';
 import { TestimonialsPage } from './pages/Testimonial';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { ResetPassword } from './pages/auth/ResetPassword';
+import { NotFound } from './pages/NotFound';
 import { useEffect } from 'react';
 
 export default function App() {
@@ -137,6 +138,8 @@ export default function App() {
           {/* Password Reset Routes */}
           <Route path="/auth/forgot-password" element={<><Navbar /><ForgotPassword /></>} />
           <Route path="/auth/reset-password/:token" element={<ResetPassword />} />
+
+          <Route path="*" element={<NotFound />} />
           
           {/* 🔒 Protected Course Overview (anyone can view, but requires auth to watch videos) */}
           <Route 
