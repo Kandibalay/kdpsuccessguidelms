@@ -3,6 +3,7 @@ import { ArrowRight, Search, Menu, ChevronLeft, ChevronRight } from 'lucide-reac
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import circle from '../assets/black circle.jpg';
+import { Link } from 'react-router-dom';
 
 const heroSlides = [
   {
@@ -127,6 +128,7 @@ export function Hero() {
           >
             {heroSlides[currentSlide].subtitle}
           </motion.p>
+          <Link to="/courses">
           <motion.button 
             className="bg-orange-500 text-white px-8 py-4 rounded-lg hover:bg-orange-600 transition-all flex items-center gap-2 group shadow-lg shadow-orange-500/30"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -138,6 +140,7 @@ export function Hero() {
             Get Started Today
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </motion.button>
+          </Link>
         </div>
 
         {/* Testimonial Carousel */}

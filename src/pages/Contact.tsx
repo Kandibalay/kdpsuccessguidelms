@@ -5,7 +5,7 @@ import  Footer  from '../components/Footer';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mvzpogep";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/maqqyova";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
