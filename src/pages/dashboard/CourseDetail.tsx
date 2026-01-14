@@ -1048,7 +1048,7 @@ export function CourseDetail() {
                           {/* Sample Book Links */}
                           <div className="space-y-2">
                             <a
-                              href="/mnt/user-data/uploads/diverticulitis_diet_cookbook_2023.pdf"
+                              href="/diverticulitis diet cookbook 2023.pdf"
                               download="Diverticulitis_Diet_Cookbook_2023.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
@@ -1061,7 +1061,7 @@ export function CourseDetail() {
                             </a>
                             
                             <a
-                              href="/mnt/user-data/uploads/NEW__MEXICAN_TRAVEL_GUIDE.pdf"
+                              href="/NEW%20MEXICAN_TRAVEL_GUIDE.pdf"
                               download="New_Mexican_Travel_Guide.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
@@ -1074,7 +1074,7 @@ export function CourseDetail() {
                             </a>
                             
                             <a
-                              href="/mnt/user-data/uploads/CRNI_EXAM_Study_Guide_2025_2026.pdf"
+                              href="/CRNI_EXAM_Study_Guide_2025–2026.pdf"
                               download="CRNI_Exam_Study_Guide_2025_2026.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
@@ -1097,7 +1097,7 @@ export function CourseDetail() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-800 mb-2">Resource Center</h4>
                           <a
-                            href="/mnt/user-data/uploads/Resource_Center.pdf"
+                            href="/Resource%20Center.pdf"
                             download="Resource_Center.pdf"
                             className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                             target="_blank"
