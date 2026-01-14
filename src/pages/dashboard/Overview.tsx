@@ -827,7 +827,7 @@ export function Overview() {
                         <div key={item.label} className="flex items-center justify-between text-sm bg-white rounded-lg p-3 border border-gray-100">
                           <div className="flex items-center gap-3 flex-1">
                             <div className={`w-3 h-3 rounded-full ${item.color} flex-shrink-0 shadow-sm`} />
-                            <span className="text-gray-700 font-medium truncate">{item.label}</span>
+                            <span className="text-gray-700 font-medium truncate w-32">{item.label}</span>
                           </div>
                           <span className="text-gray-900 font-bold ml-2">{item.value}%</span>
                         </div>
