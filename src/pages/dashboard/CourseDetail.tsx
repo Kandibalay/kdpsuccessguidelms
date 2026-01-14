@@ -720,17 +720,7 @@ export function CourseDetail() {
       return video.videoUrl;
     }
     
-    // Google Drive
-    if (video.videoUrl && video.videoUrl.includes('drive.google.com')) {
-      const fileIdMatch = video.videoUrl.match(/[?&]id=([^&]+)/);
-      if (fileIdMatch && fileIdMatch[1]) {
-        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
-      }
-      
-      if (video.videoUrl.includes('/file/d/')) {
-        return video.videoUrl.replace(/\/(view|edit).*$/, '/preview');
-      }
-    }
+ 
     
     return video.videoUrl;
   };
@@ -970,8 +960,73 @@ export function CourseDetail() {
                   className="bg-gray-300 overflow-y-auto flex-1 custom-scrollbar" 
                   style={{ maxHeight: 'calc(100vh - 200px)' }}
                 >
-                  {/* Resource Center Section */}
-                  <div className="border-b border-gray-200 bg-white p-6">
+                  {/* Course Modules */}
+                  {course.modules.map((module) => (
+                    <div key={module._id} className="border-b border-gray-200 last:border-0">
+                      {/* Module Header */}
+                      <button
+                        onClick={() => toggleModule(module._id)}
+                        className="w-full p-4 flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 flex-1 text-left">
+                          {expandedModules.includes(module._id) ? (
+                            <ChevronDown className="w-5 h-5 text-gray-700 flex-shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-gray-700 flex-shrink-0" />
+                          )}
+                          <div>
+                            <p className="text-base text-gray-900 font-semibold">{module.title}</p>
+                            <p className="text-xs text-gray-600 mt-0.5">
+                              {module.videos.length} lessons • {module.duration}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Module Videos */}
+                      {expandedModules.includes(module._id) && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="bg-gray-50"
+                        >
+                          {module.videos.map((video) => (
+                            <button
+                              key={video._id}
+                              onClick={() => handleVideoSelect(video, module)}
+                              className={`w-full p-4 pl-12 flex items-center gap-3 transition-all border-b border-gray-200 last:border-0 ${
+                                selectedVideo?._id === video._id 
+                                  ? 'bg-primary/10 border-l-4 border-l-primary' 
+                                  : 'bg-gray-50 hover:bg-primary/5 border-l-4 border-l-transparent'
+                              }`}
+                            >
+                              {isVideoCompleted(progress, video._id) ? (
+                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              ) : (
+                                <PlayCircle className={`w-5 h-5 flex-shrink-0 ${
+                                  selectedVideo?._id === video._id ? 'text-primary' : 'text-gray-400'
+                                }`} />
+                              )}
+                              <div className="flex-1 text-left">
+                                <p className={`text-sm font-medium ${
+                                  selectedVideo?._id === video._id ? 'text-primary' : 'text-gray-700'
+                                }`}>
+                                  {video.title}
+                                </p>
+                                <p className="text-xs text-gray-600 mt-0.5">{video.duration}</p>
+                              </div>
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+               {/* Resource Center Section */}
+               <div className="border-b border-gray-200 bg-white p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Resource Center</h3>
                     
                     {/* Sample Books */}
@@ -1057,72 +1112,6 @@ export function CourseDetail() {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Course Modules */}
-                  {course.modules.map((module) => (
-                    <div key={module._id} className="border-b border-gray-200 last:border-0">
-                      {/* Module Header */}
-                      <button
-                        onClick={() => toggleModule(module._id)}
-                        className="w-full p-4 flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 flex-1 text-left">
-                          {expandedModules.includes(module._id) ? (
-                            <ChevronDown className="w-5 h-5 text-gray-700 flex-shrink-0" />
-                          ) : (
-                            <ChevronRight className="w-5 h-5 text-gray-700 flex-shrink-0" />
-                          )}
-                          <div>
-                            <p className="text-base text-gray-900 font-semibold">{module.title}</p>
-                            <p className="text-xs text-gray-600 mt-0.5">
-                              {module.videos.length} lessons • {module.duration}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-
-                      {/* Module Videos */}
-                      {expandedModules.includes(module._id) && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="bg-gray-50"
-                        >
-                          {module.videos.map((video) => (
-                            <button
-                              key={video._id}
-                              onClick={() => handleVideoSelect(video, module)}
-                              className={`w-full p-4 pl-12 flex items-center gap-3 transition-all border-b border-gray-200 last:border-0 ${
-                                selectedVideo?._id === video._id 
-                                  ? 'bg-primary/10 border-l-4 border-l-primary' 
-                                  : 'bg-gray-50 hover:bg-primary/5 border-l-4 border-l-transparent'
-                              }`}
-                            >
-                              {isVideoCompleted(progress, video._id) ? (
-                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                              ) : (
-                                <PlayCircle className={`w-5 h-5 flex-shrink-0 ${
-                                  selectedVideo?._id === video._id ? 'text-primary' : 'text-gray-400'
-                                }`} />
-                              )}
-                              <div className="flex-1 text-left">
-                                <p className={`text-sm font-medium ${
-                                  selectedVideo?._id === video._id ? 'text-primary' : 'text-gray-700'
-                                }`}>
-                                  {video.title}
-                                </p>
-                                <p className="text-xs text-gray-600 mt-0.5">{video.duration}</p>
-                              </div>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </motion.div>
 
