@@ -1026,7 +1026,7 @@ export function CourseDetail() {
                 </div>
               )}
                {/* Resource Center Section */}
-               <div className="border-b border-gray-200 bg-white p-6">
+               <div className="border-b border-gray-200 bg-gray-100 bg-white p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Resource Center</h3>
                     
                     {/* Sample Books */}
