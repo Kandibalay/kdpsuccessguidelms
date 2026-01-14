@@ -10,15 +10,17 @@
 //   ChevronRight,
 //   Award,
 //   AlertCircle,
-//   Loader2,
-//   Film
+//   Loader2
 // } from 'lucide-react';
-// import axios from 'axios';
+// import api from '../../utils/apiConfig'; // Secure axios instance
+// import toast from 'react-hot-toast';
 // import { 
-//   getCourseProgress, 
-//   markVideoAsComplete as saveVideoComplete,
-//   markCourseAsStarted,
-//   saveCourseProgress
+//   getCourseProgress,
+//   markVideoAsComplete,
+//   isVideoCompleted,
+//   getCompletedVideoCount,
+//   getCompletionPercentage,
+//   CourseProgress
 // } from '../../utils/courseProgress';
 
 // // Types
@@ -82,18 +84,19 @@
   
 //   // State
 //   const [course, setCourse] = useState<Course | null>(null);
+//   const [progress, setProgress] = useState<CourseProgress | null>(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
 //   const [expandedModules, setExpandedModules] = useState<string[]>([]);
 //   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-//   const [completedVideoIds, setCompletedVideoIds] = useState<string[]>([]);
+//   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 //   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+//   const [markingComplete, setMarkingComplete] = useState(false);
 
 //   // Helper function to get the correct video embed URL
 //   const getEmbedUrl = (video: Video) => {
 //     // Bunny CDN iframe embed
 //     if (video.videoProvider === 'bunny' && video.videoUrl) {
-//       // Add autoplay parameter to Bunny URL
 //       const url = new URL(video.videoUrl);
 //       url.searchParams.set('autoplay', 'true');
 //       return url.toString();
@@ -105,38 +108,39 @@
 //     }
     
 //     // Google Drive
-//     if (video.videoUrl && video.videoUrl.includes('drive.google.com')) {
-//       const fileIdMatch = video.videoUrl.match(/[?&]id=([^&]+)/);
-//       if (fileIdMatch && fileIdMatch[1]) {
-//         return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
-//       }
+//     // if (video.videoUrl && video.videoUrl.includes('drive.google.com')) {
+//     //   const fileIdMatch = video.videoUrl.match(/[?&]id=([^&]+)/);
+//     //   if (fileIdMatch && fileIdMatch[1]) {
+//     //     return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+//     //   }
       
-//       if (video.videoUrl.includes('/file/d/')) {
-//         return video.videoUrl.replace(/\/(view|edit).*$/, '/preview');
-//       }
-//     }
+//     //   if (video.videoUrl.includes('/file/d/')) {
+//     //     return video.videoUrl.replace(/\/(view|edit).*$/, '/preview');
+//     //   }
+//     // }
     
 //     return video.videoUrl;
 //   };
 
-//   // Fetch course data from API
+//   // Fetch course data and progress from API
 //   useEffect(() => {
-//     const fetchCourse = async () => {
+//     const fetchCourseAndProgress = async () => {
 //       if (!id) {
 //         setError('No course identifier provided');
 //         setLoading(false);
 //         return;
 //       }
 
-//       console.log('🔍 Fetching course:', id);
+//       console.log('🔍 [CourseDetail] Fetching course and progress:', id);
 //       setError(null);
 //       setLoading(true);
       
 //       try {
-//         const response = await axios.get(`/courses/${id}`);
-//         console.log('✅ Course data received:', response.data);
+//         // Fetch course data
+//         const courseResponse = await api.get(`/courses/${id}`);
+//         console.log('✅ [CourseDetail] Course data received:', courseResponse.data);
         
-//         const courseData = response.data.course;
+//         const courseData = courseResponse.data.course;
         
 //         if (!courseData) {
 //           throw new Error('No course data in response');
@@ -152,12 +156,24 @@
 //         if (courseData.modules.length > 0 && courseData.modules[0].videos.length > 0) {
 //           const firstVideo = courseData.modules[0].videos[0];
 //           setSelectedVideo(firstVideo);
-//           setShowVideoPlayer(false); // Always show thumbnail first
+//           setSelectedModule(courseData.modules[0]);
+//           setShowVideoPlayer(false);
 //         }
         
-//         console.log('✅ Course loaded successfully');
+//         // Fetch progress data
+//         try {
+//           const progressData = await getCourseProgress(id);
+//           console.log('✅ [CourseDetail] Progress data received:', progressData);
+//           setProgress(progressData);
+//         } catch (progressError) {
+//           console.error('⚠️ [CourseDetail] Failed to fetch progress:', progressError);
+//           // Don't fail the whole page if progress fetch fails
+//           setProgress(null);
+//         }
+        
+//         console.log('✅ [CourseDetail] Course and progress loaded successfully');
 //       } catch (err: any) {
-//         console.error('❌ Error fetching course:', err);
+//         console.error('❌ [CourseDetail] Error fetching course:', err);
         
 //         if (err.response?.status === 404) {
 //           setError(`Course not found. The course "${id}" doesn't exist or has been removed.`);
@@ -173,47 +189,9 @@
 //       }
 //     };
 
-//     fetchCourse();
-//   }, [id]);
-
-//   // Load progress from localStorage and mark course as started
-//   useEffect(() => {
-//     if (!course || !id) return; // Wait for course to load
-    
-//     const progress = getCourseProgress(id);
-//     console.log('📊 Progress loaded from localStorage:', progress);
-//     console.log('📊 Completed Video IDs:', progress.completedVideoIds);
-//     console.log('📊 Number of completed videos:', progress.completedVideoIds.length);
-    
-//     // Get all valid video IDs from current course
-//     const allValidVideoIds = course.modules.flatMap(module => 
-//       module.videos.map(video => video._id)
-//     );
-//     console.log('📋 Valid video IDs in current course:', allValidVideoIds);
-    
-//     // Filter out old/invalid video IDs
-//     const validCompletedIds = progress.completedVideoIds.filter(id => 
-//       allValidVideoIds.includes(id)
-//     );
-    
-//     const removedCount = progress.completedVideoIds.length - validCompletedIds.length;
-//     if (removedCount > 0) {
-//       console.log(`🧹 Removed ${removedCount} invalid/old video IDs`);
-//       console.log('✨ Valid completed IDs:', validCompletedIds);
-      
-//       // Update localStorage with cleaned data
-//       saveCourseProgress({
-//         ...progress,
-//         completedVideoIds: validCompletedIds
-//       }, id);
-//     }
-    
-//     setCompletedVideoIds(validCompletedIds);
-//     markCourseAsStarted(id);
-    
-//     // Smooth scroll to top
+//     fetchCourseAndProgress();
 //     window.scrollTo({ top: 0, behavior: 'smooth' });
-//   }, [course, id]); // Run when course loads
+//   }, [id]);
 
 //   const toggleModule = (moduleId: string) => {
 //     setExpandedModules((prev) =>
@@ -223,42 +201,63 @@
 //     );
 //   };
 
-//   const markAsComplete = () => {
-//     if (selectedVideo && !completedVideoIds.includes(selectedVideo._id)) {
-//       const newCompletedIds = [...completedVideoIds, selectedVideo._id];
-//       console.log('✅ Marking video as complete:', selectedVideo._id);
-//       console.log('✅ New completed IDs:', newCompletedIds);
-//       console.log('✅ Total completed:', newCompletedIds.length);
-      
-//       setCompletedVideoIds(newCompletedIds);
-      
-//       // Pass course ID to save function
-//       if (id) {
-//         saveVideoComplete(id, selectedVideo._id);
-//       }
-      
-//       // Show video player after marking complete
+//   const markAsComplete = async () => {
+//     if (!selectedVideo || !selectedModule || !id) {
+//       toast.error('Please select a video first');
+//       return;
+//     }
+
+//     // Check if already completed
+//     if (isVideoCompleted(progress, selectedVideo._id)) {
+//       console.log('⚠️ [CourseDetail] Video already marked as complete');
 //       setShowVideoPlayer(true);
-//     } else if (selectedVideo && completedVideoIds.includes(selectedVideo._id)) {
-//       console.log('⚠️ Video already marked as complete:', selectedVideo._id);
+//       return;
+//     }
+
+//     setMarkingComplete(true);
+
+//     try {
+//       console.log('🔍 [CourseDetail] Marking video as complete:', {
+//         courseId: id,
+//         moduleId: selectedModule._id,
+//         lessonId: selectedVideo._id
+//       });
+
+//       const updatedProgress = await markVideoAsComplete(
+//         id,
+//         selectedModule._id,
+//         selectedVideo._id
+//       );
+
+//       console.log('✅ [CourseDetail] Video marked complete, updated progress:', updatedProgress);
+
+//       setProgress(updatedProgress);
+//       setShowVideoPlayer(true);
+//       toast.success('Lesson completed! 🎉');
+//     } catch (error) {
+//       console.error('❌ [CourseDetail] Error marking video complete:', error);
+//       toast.error(error instanceof Error ? error.message : 'Failed to mark lesson as complete');
+//     } finally {
+//       setMarkingComplete(false);
 //     }
 //   };
 
-//   const isVideoCompleted = (videoId: string) => {
-//     return completedVideoIds.includes(videoId);
+//   const handleVideoSelect = (video: Video, module: Module) => {
+//     setSelectedVideo(video);
+//     setSelectedModule(module);
+//     setShowVideoPlayer(false);
+//     window.scrollTo({ top: 0, behavior: 'smooth' });
 //   };
 
 //   // Calculate progress
 //   const totalVideos = course?.totalVideos || 0;
-//   const completedVideos = completedVideoIds.length;
-//   const progress = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
+//   const completedVideos = getCompletedVideoCount(progress);
+//   const progressPercentage = getCompletionPercentage(progress, totalVideos);
   
-//   // Debug logging for progress
-//   console.log('📈 Progress Calculation:', {
+//   console.log('📈 [CourseDetail] Progress Calculation:', {
 //     totalVideos,
 //     completedVideos,
-//     progress: `${progress}%`,
-//     completedVideoIds
+//     progressPercentage: `${progressPercentage}%`
 //   });
 
 //   // Calculate total duration
@@ -321,18 +320,18 @@
 //   return (
 //     <div className="min-h-screen bg-gray-50">
 //       <div className="max-w-[1800px] mx-auto">
-//         {/* Two Column Layout - No Gap */}
+//         {/* Two Column Layout */}
 //         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-//           {/* Left Column - Course Modules (Straight Sidebar) */}
+//           {/* Left Column - Course Modules */}
 //           <motion.div
 //             initial={{ opacity: 0, x: -20 }}
 //             animate={{ opacity: 1, x: 0 }}
 //             transition={{ duration: 0.5, delay: 0.1 }}
 //             className="lg:col-span-4 bg-gray-100 border-r border-gray-200"
 //           >
-//             <div className="h-full">
-//               {/* Header - White Background */}
-//               <div className="p-6 border-b border-gray-200 bg-gray-100">
+//             <div className="h-full flex flex-col">
+//               {/* Header - Fixed */}
+//               <div className="p-6 border-b border-gray-200 bg-gray-100 flex-shrink-0">
 //                 <div className="flex items-center gap-4 mb-4">
 //                   {course?.thumbnail?.url && (
 //                     <img 
@@ -352,12 +351,15 @@
 //                 </p>
 //               </div>
 
-//               {/* Modules List - No Scroll, Full Height */}
+//               {/* Modules List - Scrollable */}
 //               {course && (
-//                 <div className="bg-gray-300">
+//                 <div 
+//                   className="bg-gray-300 overflow-y-auto flex-1 custom-scrollbar" 
+//                   style={{ maxHeight: 'calc(100vh - 200px)' }}
+//                 >
 //                   {course.modules.map((module) => (
 //                     <div key={module._id} className="border-b border-gray-200 last:border-0">
-//                       {/* Module Header - Gray Background */}
+//                       {/* Module Header */}
 //                       <button
 //                         onClick={() => toggleModule(module._id)}
 //                         className="w-full p-4 flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -377,7 +379,7 @@
 //                         </div>
 //                       </button>
 
-//                       {/* Module Videos - Primary Color Hover */}
+//                       {/* Module Videos */}
 //                       {expandedModules.includes(module._id) && (
 //                         <motion.div 
 //                           initial={{ opacity: 0, height: 0 }}
@@ -389,18 +391,14 @@
 //                           {module.videos.map((video) => (
 //                             <button
 //                               key={video._id}
-//                               onClick={() => {
-//                                 setSelectedVideo(video);
-//                                 setShowVideoPlayer(false); // Reset to show thumbnail for new video
-//                                 window.scrollTo({ top: 0, behavior: 'smooth' });
-//                               }}
+//                               onClick={() => handleVideoSelect(video, module)}
 //                               className={`w-full p-4 pl-12 flex items-center gap-3 transition-all border-b border-gray-200 last:border-0 ${
 //                                 selectedVideo?._id === video._id 
 //                                   ? 'bg-primary/10 border-l-4 border-l-primary' 
 //                                   : 'bg-gray-50 hover:bg-primary/5 border-l-4 border-l-transparent'
 //                               }`}
 //                             >
-//                               {isVideoCompleted(video._id) ? (
+//                               {isVideoCompleted(progress, video._id) ? (
 //                                 <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
 //                               ) : (
 //                                 <PlayCircle className={`w-5 h-5 flex-shrink-0 ${
@@ -440,12 +438,12 @@
 //                   <Award className="w-5 h-5 text-orange-500" />
 //                   <span className="text-md text-gray-900">Your Progress</span>
 //                 </div>
-//                 <span className="text-primary text-sm">{progress}% Complete</span>
+//                 <span className="text-primary text-sm">{progressPercentage}% Complete</span>
 //               </div>
 //               <div className="w-full bg-gray-200 rounded-full h-2">
 //                 <div
 //                   className="bg-gradient-to-r from-primary to-accent rounded-full h-2 transition-all duration-500"
-//                   style={{ width: `${progress}%` }}
+//                   style={{ width: `${progressPercentage}%` }}
 //                 />
 //               </div>
 //               <div className="flex items-center justify-between mt-2 text-sm text-gray-600">
@@ -464,7 +462,6 @@
 //               >
 //                 {/* Video Player */}
 //                 <div className="aspect-video relative overflow-hidden" style={{ maxHeight: '720px' }}>
-//                   {/* Only load iframe when user clicks play */}
 //                   {showVideoPlayer ? (
 //                     <iframe
 //                       key={selectedVideo._id}
@@ -487,7 +484,7 @@
 //                     <div className="w-full h-full bg-gray-900"></div>
 //                   )}
                   
-//                   {/* Thumbnail Overlay - Shows on top until clicked */}
+//                   {/* Thumbnail Overlay */}
 //                   {selectedVideo.thumbnail?.url && !showVideoPlayer && (
 //                     <div
 //                       className="absolute inset-0 cursor-pointer"
@@ -515,7 +512,7 @@
 //                         }}
 //                       />
                       
-//                       {/* Play button overlay on thumbnail */}
+//                       {/* Play button overlay */}
 //                       <div 
 //                         className="absolute inset-0 bg-black bg-opacity-40 hover:bg-opacity-50 transition-all flex items-center justify-center"
 //                         style={{ zIndex: 11 }}
@@ -527,7 +524,7 @@
 //                     </div>
 //                   )}
                   
-//                   {/* Fallback: Video icon when no thumbnail */}
+//                   {/* Fallback when no thumbnail */}
 //                   {!selectedVideo.thumbnail?.url && !showVideoPlayer && (
 //                     <div 
 //                       className="absolute inset-0 bg-gray-900 flex items-center justify-center cursor-pointer"
@@ -554,7 +551,7 @@
 //                           <Clock className="w-4 h-4" />
 //                           {selectedVideo.duration}
 //                         </span>
-//                         {isVideoCompleted(selectedVideo._id) && (
+//                         {isVideoCompleted(progress, selectedVideo._id) && (
 //                           <span className="flex items-center gap-1 text-green-600">
 //                             <CheckCircle className="w-4 h-4" />
 //                             Completed
@@ -565,13 +562,23 @@
 //                   </div>
 
 //                   {/* Action Button */}
-//                   {!isVideoCompleted(selectedVideo._id) ? (
+//                   {!isVideoCompleted(progress, selectedVideo._id) ? (
 //                     <button 
-//                       className="bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm"
+//                       className="bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 //                       onClick={markAsComplete}
+//                       disabled={markingComplete}
 //                     >
-//                       <CheckCircle className="w-4 h-4" />
-//                       Mark as Complete
+//                       {markingComplete ? (
+//                         <>
+//                           <Loader2 className="w-4 h-4 animate-spin" />
+//                           Marking Complete...
+//                         </>
+//                       ) : (
+//                         <>
+//                           <CheckCircle className="w-4 h-4" />
+//                           Mark as Complete
+//                         </>
+//                       )}
 //                     </button>
 //                   ) : (
 //                     <div className="flex items-center gap-2 text-green-600 px-5 py-2.5">
@@ -935,9 +942,9 @@ export function CourseDetail() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-4 bg-gray-100 border-r border-gray-200"
           >
-            <div className="h-full">
-              {/* Header */}
-              <div className="p-6 border-b border-gray-200 bg-gray-100">
+            <div className="h-full flex flex-col">
+              {/* Header - Fixed */}
+              <div className="p-6 border-b border-gray-200 bg-gray-100 flex-shrink-0">
                 <div className="flex items-center gap-4 mb-4">
                   {course?.thumbnail?.url && (
                     <img 
@@ -957,9 +964,101 @@ export function CourseDetail() {
                 </p>
               </div>
 
-              {/* Modules List */}
+              {/* Modules List - Scrollable */}
               {course && (
-                <div className="bg-gray-300">
+                <div 
+                  className="bg-gray-300 overflow-y-auto flex-1 custom-scrollbar" 
+                  style={{ maxHeight: 'calc(100vh - 200px)' }}
+                >
+                  {/* Resource Center Section */}
+                  <div className="border-b border-gray-200 bg-white p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Resource Center</h3>
+                    
+                    {/* Sample Books */}
+                    <div className="mb-6">
+                      <div className="flex items-start gap-2 mb-3">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800 mb-2">Sample Books</h4>
+                          
+                          {/* Disclaimer */}
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                            <p className="text-xs text-red-800 leading-relaxed">
+                              ⚠️ <strong>Important:</strong> These sample books are provided for learning purposes only. 
+                              Do not copy, reuse, or republish any part of these books. They are already published on Amazon, 
+                              and reusing content will result in your KDP account being flagged or banned.
+                            </p>
+                          </div>
+                          
+                          {/* Sample Book Links */}
+                          <div className="space-y-2">
+                            <a
+                              href="/mnt/user-data/uploads/diverticulitis_diet_cookbook_2023.pdf"
+                              download="Diverticulitis_Diet_Cookbook_2023.pdf"
+                              className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Diverticulitis Diet Cookbook 2023
+                            </a>
+                            
+                            <a
+                              href="/mnt/user-data/uploads/NEW__MEXICAN_TRAVEL_GUIDE.pdf"
+                              download="New_Mexican_Travel_Guide.pdf"
+                              className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              New Mexico Travel Guide
+                            </a>
+                            
+                            <a
+                              href="/mnt/user-data/uploads/CRNI_EXAM_Study_Guide_2025_2026.pdf"
+                              download="CRNI_Exam_Study_Guide_2025_2026.pdf"
+                              className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              CRNI Exam Study Guide 2025-2026
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Resource Center Document */}
+                    <div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800 mb-2">Resource Center</h4>
+                          <a
+                            href="/mnt/user-data/uploads/Resource_Center.pdf"
+                            download="Resource_Center.pdf"
+                            className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download Resource Center Guide
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Course Modules */}
                   {course.modules.map((module) => (
                     <div key={module._id} className="border-b border-gray-200 last:border-0">
                       {/* Module Header */}
@@ -1212,4 +1311,3 @@ export function CourseDetail() {
     </div>
   );
 }
-
