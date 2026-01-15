@@ -1061,7 +1061,7 @@ export function CourseDetail() {
                             </a>
                             
                             <a
-                              href="/NEW%20MEXICAN_TRAVEL_GUIDE.pdf"
+                              href="/"
                               download="New_Mexican_Travel_Guide.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
