@@ -34,11 +34,8 @@ export function ResetPassword() {
   useEffect(() => {
     // Check if token exists
     if (!token) {
-      console.error('❌ [RESET PASSWORD] No token found in URL');
       setTokenValid(false);
       toast.error('Invalid reset link. Please request a new password reset.');
-    } else {
-      console.log('✅ [RESET PASSWORD] Token found:', token);
     }
   }, [token]);
 
@@ -50,15 +47,11 @@ export function ResetPassword() {
 
     setIsLoading(true);
 
-    console.log('🔍 [RESET PASSWORD] Initiating password reset with token:', token);
-
     try {
       const response = await resetPassword(token, {
         password: data.password,
         confirmPassword: data.confirmPassword
       });
-
-      console.log('✅ [RESET PASSWORD] Success:', response);
 
       setResetSuccess(true);
       toast.success('Password reset successfully! 🎉');
@@ -68,8 +61,6 @@ export function ResetPassword() {
         navigate('/auth/login');
       }, 3000);
     } catch (error) {
-      console.error('❌ [RESET PASSWORD] Error:', error);
-
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Failed to reset password. The link may have expired.';

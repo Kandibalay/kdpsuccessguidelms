@@ -194,7 +194,7 @@ export function TestimonialsPage() {
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-16"
           >
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-semibold text-white mb-2">100+</div>
+              <div className="text-3xl md:text-4xl font-semibold text-white mb-2">700+</div>
               <div className="text-sm text-orange-300">Active Students</div>
             </div>
             <div className="text-center">

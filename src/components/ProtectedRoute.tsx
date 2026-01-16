@@ -8,16 +8,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, loading, auth } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
-
-  console.log('🔒 [ProtectedRoute] Auth check:', {
-    isAuthenticated,
-    hasToken: !!auth.token,
-    hasUser: !!auth.user,
-    loading,
-    currentPath: location.pathname
-  });
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -33,11 +25,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // If not authenticated, redirect to login and save the intended destination
   if (!isAuthenticated) {
-    console.log('❌ [ProtectedRoute] User not authenticated, redirecting to login');
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
   // User is authenticated, render the protected content
-  console.log('✅ [ProtectedRoute] User authenticated, rendering protected content');
   return <>{children}</>;
 }
