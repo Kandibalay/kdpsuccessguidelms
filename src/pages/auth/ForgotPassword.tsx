@@ -27,19 +27,19 @@ export function ForgotPassword() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
 
-    console.log('🔍 [FORGOT PASSWORD] Initiating password reset for:', data.email);
+    // console.log('🔍 [FORGOT PASSWORD] Initiating password reset for:', data.email);
 
     try {
       const response = await forgotPassword(data.email);
 
-      console.log('✅ [FORGOT PASSWORD] Success:', response);
+      // console.log('✅ [FORGOT PASSWORD] Success:', response);
 
       // Store the email and show success state
       setSubmittedEmail(data.email);
       setEmailSent(true);
       toast.success('Password reset email sent successfully! 📧');
     } catch (error) {
-      console.error('❌ [FORGOT PASSWORD] Error:', error);
+      // console.error('❌ [FORGOT PASSWORD] Error:', error);
 
       const errorMessage = error instanceof Error 
         ? error.message 

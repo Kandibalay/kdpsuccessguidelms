@@ -469,16 +469,16 @@ export function Overview() {
         const fetchedCourses = response.data.courses || [];
         setCourses(fetchedCourses);
         
-        console.log('📊 [Overview] Courses loaded:', fetchedCourses.length);
+        // console.log('📊 [Overview] Courses loaded:', fetchedCourses.length);
         
         // Fetch progress for all courses
         const courseIds = fetchedCourses.map((course: Course) => course._id);
         const progress = await getMultipleCourseProgress(courseIds);
         setProgressMap(progress);
         
-        console.log('📊 [Overview] Progress loaded for all courses');
+        // console.log('📊 [Overview] Progress loaded for all courses');
       } catch (error) {
-        console.error('❌ [Overview] Error fetching courses:', error);
+        // console.error('❌ [Overview] Error fetching courses:', error);
       } finally {
         setIsLoading(false);
       }
