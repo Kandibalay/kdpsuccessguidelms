@@ -1,279 +1,302 @@
-// /**
-//  * Course Progress Utility - IMPROVED VERSION
-//  * Stores progress PER COURSE using course ID as key
-//  * This prevents mixing progress from different courses
-//  */
 
-// // interface CourseProgress {
-// //   completedVideoIds: string[];
-// //   hasStarted: boolean;
-// //   lastWatchedVideoId: string | null;
-// //   lastUpdated: string;
-// // }
-
-
+// import api from './apiConfig';
+// import { AxiosError } from 'axios';
+// import { getUserEnrollments, getCourseEnrollment } from './enrollmentUtils';
 
 // export interface CourseProgress {
-//   completedVideoIds: string[];
-//   hasStarted: boolean;
-//   lastWatchedVideoId: string | null;
-//   lastUpdated: string;
+//   _id: string;
+//   user: string;
+//   course: string;
+//   enrolledDate: string;
+//   progress: number;
+//   isCompleted: boolean;
+//   completedVideos: Array<{
+//     courseId: string;
+//     moduleId: string;
+//     lessonId: string;
+//     completedAt: string;
+//     _id: string;
+//   }>;
+//   lastWatched?: {
+//     moduleId: string;
+//     lessonId: string;
+//     moduleTitle: string;
+//     lessonTitle: string;
+//     watchedAt: string;
+//   };
+//   createdAt: string;
+//   updatedAt: string;
 // }
 
 // /**
-//  * Get storage key for a specific course
-//  * @param courseId - Optional course ID. If not provided, tries to get from URL
+//  * Fetch course progress from enrollment data
+//  * @param courseId - The course ID
+//  * @returns Course progress data or null
 //  */
-// const getStorageKey = (courseId?: string): string => {
-//   if (courseId) {
-//     return `kdp_course_progress_${courseId}`;
-//   }
-  
-//   // Try to get course ID from URL
-//   const pathParts = window.location.pathname.split('/');
-//   const urlCourseId = pathParts[pathParts.length - 1];
-  
-//   if (urlCourseId && urlCourseId !== 'courses') {
-//     return `kdp_course_progress_${urlCourseId}`;
-//   }
-  
-//   // Fallback to global key (for backward compatibility)
-//   return 'kdp_course_progress';
-// };
-
-// export const getCourseProgress = (courseId?: string): CourseProgress => {
+// export const getCourseProgress = async (courseId: string): Promise<CourseProgress | null> => {
 //   try {
-//     const storageKey = getStorageKey(courseId);
-//     const stored = localStorage.getItem(storageKey);
+//     console.log('📊 [getCourseProgress] Fetching progress for course:', courseId);
     
-//     if (stored) {
-//       const parsed = JSON.parse(stored);
-      
-//       // Migration: Convert old number IDs to strings if needed
-//       if (parsed.completedVideoIds && Array.isArray(parsed.completedVideoIds)) {
-//         parsed.completedVideoIds = parsed.completedVideoIds.map((id: any) => String(id));
-//       }
-      
-//       return {
-//         completedVideoIds: parsed.completedVideoIds || [],
-//         hasStarted: parsed.hasStarted || false,
-//         lastWatchedVideoId: parsed.lastWatchedVideoId || null,
-//         lastUpdated: parsed.lastUpdated || new Date().toISOString()
-//       };
+//     // Get enrollment which contains all progress data
+//     const enrollment = await getCourseEnrollment(courseId);
+    
+//     if (!enrollment) {
+//       console.log('❌ [getCourseProgress] No enrollment found for course:', courseId);
+//       return null;
 //     }
+    
+//     console.log('✅ [getCourseProgress] Progress found:', {
+//       progress: enrollment.progress,
+//       completedVideos: enrollment.completedVideos.length
+//     });
+    
+//     return enrollment as CourseProgress;
 //   } catch (error) {
-//     console.error('Error reading course progress:', error);
+//     console.error('❌ [getCourseProgress] Error fetching progress:', error);
+//     return null;
 //   }
-  
-//   return {
-//     completedVideoIds: [],
-//     hasStarted: false,
-//     lastWatchedVideoId: null,
-//     lastUpdated: new Date().toISOString()
-//   };
 // };
 
-// export const saveCourseProgress = (progress: CourseProgress, courseId?: string): void => {
+// /**
+//  * Mark a lesson/video as complete
+//  * @param courseId - The course ID
+//  * @param moduleId - The module ID
+//  * @param lessonId - The lesson/video ID
+//  * @returns Updated enrollment data
+//  */
+// export const markVideoAsComplete = async (
+//   courseId: string,
+//   moduleId: string,
+//   lessonId: string
+// ): Promise<CourseProgress | null> => {
 //   try {
-//     const storageKey = getStorageKey(courseId);
-//     progress.lastUpdated = new Date().toISOString();
-//     localStorage.setItem(storageKey, JSON.stringify(progress));
+//     console.log('✅ [markVideoAsComplete] Marking lesson complete:', {
+//       courseId,
+//       moduleId,
+//       lessonId
+//     });
+    
+//     const response = await api.post('/courses/progress/complete', {
+//       courseId,
+//       moduleId,
+//       lessonId
+//     });
+    
+//     console.log('✅ [markVideoAsComplete] Response:', response.data);
+    
+//     return response.data.enrollment;
 //   } catch (error) {
-//     console.error('Error saving course progress:', error);
+//     console.error('❌ [markVideoAsComplete] Error:', error);
+    
+//     if (error instanceof AxiosError) {
+//       const errorMessage = error.response?.data?.message || 'Failed to mark lesson as complete';
+//       throw new Error(errorMessage);
+//     }
+    
+//     throw error;
 //   }
 // };
 
-// export const markVideoAsComplete = (videoIdOrCourseId: string, videoId?: string): void => {
-//   // Support both old and new signatures
-//   // Old: markVideoAsComplete(videoId)
-//   // New: markVideoAsComplete(courseId, videoId)
+// /**
+//  * Check if a video is completed
+//  * @param progress - Course progress data
+//  * @param lessonId - The lesson/video ID
+//  * @returns True if video is completed
+//  */
+// export const isVideoCompleted = (progress: CourseProgress | null, lessonId: string): boolean => {
+//   if (!progress) return false;
   
-//   let courseId: string | undefined;
-//   let actualVideoId: string;
+//   const isCompleted = progress.completedVideos.some(video => video.lessonId === lessonId);
+//   console.log(`🔍 [isVideoCompleted] Lesson ${lessonId}:`, isCompleted);
   
-//   if (videoId) {
-//     // New signature: markVideoAsComplete(courseId, videoId)
-//     courseId = videoIdOrCourseId;
-//     actualVideoId = videoId;
-//   } else {
-//     // Old signature: markVideoAsComplete(videoId)
-//     actualVideoId = videoIdOrCourseId;
+//   return isCompleted;
+// };
+
+// /**
+//  * Get completed video count for a course
+//  * @param progress - Course progress data
+//  * @returns Number of completed videos
+//  */
+// export const getCompletedVideoCount = (progress: CourseProgress | null): number => {
+//   if (!progress) return 0;
+//   return progress.completedVideos.length;
+// };
+
+// /**
+//  * Check if course has been started
+//  * @param progress - Course progress data
+//  * @returns True if course has been started
+//  */
+// export const hasCourseStarted = (progress: CourseProgress | null): boolean => {
+//   if (!progress) return false;
+//   return progress.completedVideos.length > 0 || progress.progress > 0;
+// };
+
+// /**
+//  * Calculate completion percentage
+//  * @param progress - Course progress data
+//  * @param totalVideos - Total number of videos in the course
+//  * @returns Completion percentage (0-100)
+//  */
+// export const getCompletionPercentage = (
+//   progress: CourseProgress | null,
+//   totalVideos: number
+// ): number => {
+//   if (!progress || totalVideos === 0) return 0;
+  
+//   // Use backend's progress percentage if available
+//   if (progress.progress !== undefined) {
+//     return Math.round(progress.progress);
 //   }
   
-//   const progress = getCourseProgress(courseId);
-  
-//   if (!progress.completedVideoIds.includes(actualVideoId)) {
-//     progress.completedVideoIds.push(actualVideoId);
-//     progress.hasStarted = true;
-//     progress.lastWatchedVideoId = actualVideoId;
-//     saveCourseProgress(progress, courseId);
-//   }
+//   // Fallback calculation
+//   return Math.round((progress.completedVideos.length / totalVideos) * 100);
 // };
 
-// export const markCourseAsStarted = (courseId?: string): void => {
-//   const progress = getCourseProgress(courseId);
-  
-//   if (!progress.hasStarted) {
-//     progress.hasStarted = true;
-//     saveCourseProgress(progress, courseId);
-//   }
-// };
-
-// export const isVideoCompleted = (videoIdOrCourseId: string, videoId?: string): boolean => {
-//   // Support both old and new signatures
-//   let courseId: string | undefined;
-//   let actualVideoId: string;
-  
-//   if (videoId) {
-//     // New signature: isVideoCompleted(courseId, videoId)
-//     courseId = videoIdOrCourseId;
-//     actualVideoId = videoId;
-//   } else {
-//     // Old signature: isVideoCompleted(videoId)
-//     actualVideoId = videoIdOrCourseId;
+// /**
+//  * Get progress stats for display
+//  * @param progress - Course progress data
+//  * @param totalVideos - Total number of videos in the course
+//  * @returns Progress statistics object
+//  */
+// export const getProgressStats = (
+//   progress: CourseProgress | null,
+//   totalVideos: number
+// ) => {
+//   if (!progress) {
+//     return {
+//       completedCount: 0,
+//       totalCount: totalVideos,
+//       percentage: 0,
+//       hasStarted: false,
+//       isCompleted: false,
+//       lastWatched: null,
+//       enrolledDate: null
+//     };
 //   }
   
-//   const progress = getCourseProgress(courseId);
-//   return progress.completedVideoIds.includes(actualVideoId);
-// };
-
-// export const hasCourseStarted = (courseId?: string): boolean => {
-//   const progress = getCourseProgress(courseId);
-//   return progress.hasStarted;
-// };
-
-// export const getCompletedVideoCount = (courseId?: string): number => {
-//   const progress = getCourseProgress(courseId);
-//   return progress.completedVideoIds.length;
-// };
-
-// export const updateLastWatchedVideo = (videoIdOrCourseId: string, videoId?: string): void => {
-//   // Support both old and new signatures
-//   let courseId: string | undefined;
-//   let actualVideoId: string;
-  
-//   if (videoId) {
-//     // New signature: updateLastWatchedVideo(courseId, videoId)
-//     courseId = videoIdOrCourseId;
-//     actualVideoId = videoId;
-//   } else {
-//     // Old signature: updateLastWatchedVideo(videoId)
-//     actualVideoId = videoIdOrCourseId;
-//   }
-  
-//   const progress = getCourseProgress(courseId);
-//   progress.lastWatchedVideoId = actualVideoId;
-//   saveCourseProgress(progress, courseId);
-// };
-
-// export const getCompletionPercentage = (totalVideos: number, courseId?: string): number => {
-//   const progress = getCourseProgress(courseId);
-//   if (totalVideos === 0) return 0;
-//   return Math.round((progress.completedVideoIds.length / totalVideos) * 100);
-// };
-
-// export const getProgressStats = (totalVideos: number, courseId?: string) => {
-//   const progress = getCourseProgress(courseId);
 //   return {
-//     completedCount: progress.completedVideoIds.length,
+//     completedCount: progress.completedVideos.length,
 //     totalCount: totalVideos,
-//     percentage: getCompletionPercentage(totalVideos, courseId),
-//     hasStarted: progress.hasStarted,
-//     lastWatchedVideoId: progress.lastWatchedVideoId,
-//     lastUpdated: progress.lastUpdated
+//     percentage: getCompletionPercentage(progress, totalVideos),
+//     hasStarted: hasCourseStarted(progress),
+//     isCompleted: progress.isCompleted,
+//     lastWatched: progress.lastWatched,
+//     enrolledDate: progress.enrolledDate
 //   };
 // };
 
-// export const resetCourseProgress = (courseId?: string): void => {
-//   const storageKey = getStorageKey(courseId);
-//   localStorage.removeItem(storageKey);
-// };
-
 // /**
-//  * Get all courses that have progress stored
-//  * @returns Array of course IDs
+//  * Fetch progress for multiple courses at once
+//  * @param courseIds - Array of course IDs
+//  * @returns Map of course ID to progress data
 //  */
-// export const getAllCoursesWithProgress = (): string[] => {
-//   const courses: string[] = [];
+// export const getMultipleCourseProgress = async (
+//   courseIds: string[]
+// ): Promise<Map<string, CourseProgress | null>> => {
+//   console.log('📊 [getMultipleCourseProgress] Fetching progress for', courseIds.length, 'courses');
   
-//   try {
-//     for (let i = 0; i < localStorage.length; i++) {
-//       const key = localStorage.key(i);
-//       if (key && key.startsWith('kdp_course_progress_') && key !== 'kdp_course_progress') {
-//         const courseId = key.replace('kdp_course_progress_', '');
-//         courses.push(courseId);
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error getting courses with progress:', error);
-//   }
+//   const progressMap = new Map<string, CourseProgress | null>();
   
-//   return courses;
+//   // Fetch all progress data in parallel
+//   const results = await Promise.allSettled(
+//     courseIds.map(courseId => getCourseProgress(courseId))
+//   );
+  
+//   results.forEach((result, index) => {
+//     const courseId = courseIds[index];
+    
+//     if (result.status === 'fulfilled') {
+//       progressMap.set(courseId, result.value);
+//       console.log(`✅ [getMultipleCourseProgress] Course ${courseId}:`, result.value ? 'Has progress' : 'No progress');
+//     } else {
+//       console.error(`❌ [getMultipleCourseProgress] Failed for ${courseId}:`, result.reason);
+//       progressMap.set(courseId, null);
+//     }
+//   });
+  
+//   return progressMap;
 // };
 
 // /**
-//  * Migrate old global progress to course-specific storage
-//  * Call this once to migrate existing user progress
-//  * @param courseId - The course ID to migrate to
+//  * Get all courses that have been started (have progress)
+//  * @param progressMap - Map of course ID to progress data
+//  * @returns Array of course IDs with progress
 //  */
-// export const migrateToPerCourseStorage = (courseId: string): void => {
-//   try {
-//     const oldKey = 'kdp_course_progress';
-//     const oldProgress = localStorage.getItem(oldKey);
-    
-//     if (oldProgress) {
-//       const newKey = `kdp_course_progress_${courseId}`;
-      
-//       // Only migrate if new key doesn't exist
-//       if (!localStorage.getItem(newKey)) {
-//         localStorage.setItem(newKey, oldProgress);
-//         console.log('✅ Migrated old progress to course:', courseId);
-//       }
-      
-//       // Remove old global progress
-//       localStorage.removeItem(oldKey);
-//       console.log('🧹 Removed old global progress');
+// export const getAllCoursesWithProgress = (
+//   progressMap: Map<string, CourseProgress | null>
+// ): string[] => {
+//   const coursesWithProgress: string[] = [];
+  
+//   progressMap.forEach((progress, courseId) => {
+//     if (progress && hasCourseStarted(progress)) {
+//       coursesWithProgress.push(courseId);
 //     }
-//   } catch (error) {
-//     console.error('❌ Error migrating progress:', error);
-//   }
+//   });
+  
+//   console.log('📊 [getAllCoursesWithProgress]:', coursesWithProgress.length, 'courses with progress');
+//   return coursesWithProgress;
 // };
 
 // /**
-//  * Clean invalid video IDs from course progress
-//  * Removes video IDs that don't exist in the provided valid list
-//  * @param validVideoIds - Array of valid video IDs for the course
-//  * @param courseId - Optional course ID
+//  * Get last watched video info
+//  * @param progress - Course progress data
+//  * @returns Last watched video info or null
 //  */
-// export const cleanInvalidVideoIds = (validVideoIds: string[], courseId?: string): void => {
-//   try {
-//     const progress = getCourseProgress(courseId);
-//     const initialCount = progress.completedVideoIds.length;
-    
-//     // Filter to keep only valid IDs
-//     progress.completedVideoIds = progress.completedVideoIds.filter(id => 
-//       validVideoIds.includes(id)
-//     );
-    
-//     const removedCount = initialCount - progress.completedVideoIds.length;
-    
-//     if (removedCount > 0) {
-//       saveCourseProgress(progress, courseId);
-//       console.log(`🧹 Cleaned ${removedCount} invalid video IDs from progress`);
-//     }
-//   } catch (error) {
-//     console.error('❌ Error cleaning invalid video IDs:', error);
-//   }
+// export const getLastWatchedVideo = (progress: CourseProgress | null) => {
+//   return progress?.lastWatched || null;
+// };
+
+// /**
+//  * Check if a module has any completed videos
+//  * @param progress - Course progress data
+//  * @param moduleId - The module ID
+//  * @returns True if module has completed videos
+//  */
+// export const hasModuleProgress = (
+//   progress: CourseProgress | null,
+//   moduleId: string
+// ): boolean => {
+//   if (!progress) return false;
+//   return progress.completedVideos.some(video => video.moduleId === moduleId);
+// };
+
+// /**
+//  * Get completed videos count for a specific module
+//  * @param progress - Course progress data
+//  * @param moduleId - The module ID
+//  * @returns Number of completed videos in the module
+//  */
+// export const getModuleCompletedCount = (
+//   progress: CourseProgress | null,
+//   moduleId: string
+// ): number => {
+//   if (!progress) return 0;
+//   return progress.completedVideos.filter(video => video.moduleId === moduleId).length;
+// };
+
+// /**
+//  * Calculate module completion percentage
+//  * @param progress - Course progress data
+//  * @param moduleId - The module ID
+//  * @param totalModuleVideos - Total videos in the module
+//  * @returns Module completion percentage (0-100)
+//  */
+// export const getModuleCompletionPercentage = (
+//   progress: CourseProgress | null,
+//   moduleId: string,
+//   totalModuleVideos: number
+// ): number => {
+//   if (!progress || totalModuleVideos === 0) return 0;
+  
+//   const completedCount = getModuleCompletedCount(progress, moduleId);
+//   return Math.round((completedCount / totalModuleVideos) * 100);
 // };
 
 
-/**
- * Course Progress Utility - API VERSION
- * Uses backend API for progress tracking with secure axios configuration
- */
-
-import api from './apiConfig'; // Secure axios instance with .env baseURL
+import api from './apiConfig';
 import { AxiosError } from 'axios';
+import { getUserEnrollments, getCourseEnrollment } from './enrollmentUtils';
 
 export interface CourseProgress {
   _id: string;
@@ -301,36 +324,20 @@ export interface CourseProgress {
 }
 
 /**
- * Fetch course progress from backend
+ * Fetch course progress from enrollment data
  * @param courseId - The course ID
- * @returns Course progress data
+ * @returns Course progress data or null
  */
 export const getCourseProgress = async (courseId: string): Promise<CourseProgress | null> => {
   try {
-    console.log('🔍 [getCourseProgress] Fetching progress for course:', courseId);
+    const enrollment = await getCourseEnrollment(courseId);
     
-    const response = await api.post(`/courses/${courseId}/progress`);
-    
-    console.log('✅ [getCourseProgress] Progress received:', response.data.progress);
-    
-    return response.data.progress;
-  } catch (error) {
-    console.error('❌ [getCourseProgress] Error fetching progress:', error);
-    
-    if (error instanceof AxiosError) {
-      // If 404, user might not be enrolled yet
-      if (error.response?.status === 404) {
-        console.log('ℹ️ [getCourseProgress] No progress found - user may not be enrolled');
-        return null;
-      }
-      
-      // If 401, user is not authenticated
-      if (error.response?.status === 401) {
-        console.error('❌ [getCourseProgress] User not authenticated');
-        throw new Error('Please login to view course progress');
-      }
+    if (!enrollment) {
+      return null;
     }
     
+    return enrollment as CourseProgress;
+  } catch (error) {
     return null;
   }
 };
@@ -348,24 +355,14 @@ export const markVideoAsComplete = async (
   lessonId: string
 ): Promise<CourseProgress | null> => {
   try {
-    console.log('🔍 [markVideoAsComplete] Marking lesson complete:', {
-      courseId,
-      moduleId,
-      lessonId
-    });
-    
     const response = await api.post('/courses/progress/complete', {
       courseId,
       moduleId,
       lessonId
     });
     
-    console.log('✅ [markVideoAsComplete] Lesson marked complete:', response.data.enrollment);
-    
     return response.data.enrollment;
   } catch (error) {
-    console.error('❌ [markVideoAsComplete] Error marking lesson complete:', error);
-    
     if (error instanceof AxiosError) {
       const errorMessage = error.response?.data?.message || 'Failed to mark lesson as complete';
       throw new Error(errorMessage);
@@ -383,7 +380,6 @@ export const markVideoAsComplete = async (
  */
 export const isVideoCompleted = (progress: CourseProgress | null, lessonId: string): boolean => {
   if (!progress) return false;
-  
   return progress.completedVideos.some(video => video.lessonId === lessonId);
 };
 
@@ -432,7 +428,7 @@ export const getCompletionPercentage = (
  * Get progress stats for display
  * @param progress - Course progress data
  * @param totalVideos - Total number of videos in the course
- * @returns Progress statistics
+ * @returns Progress statistics object
  */
 export const getProgressStats = (
   progress: CourseProgress | null,
@@ -471,8 +467,6 @@ export const getMultipleCourseProgress = async (
 ): Promise<Map<string, CourseProgress | null>> => {
   const progressMap = new Map<string, CourseProgress | null>();
   
-  console.log('🔍 [getMultipleCourseProgress] Fetching progress for courses:', courseIds);
-  
   // Fetch all progress data in parallel
   const results = await Promise.allSettled(
     courseIds.map(courseId => getCourseProgress(courseId))
@@ -484,12 +478,9 @@ export const getMultipleCourseProgress = async (
     if (result.status === 'fulfilled') {
       progressMap.set(courseId, result.value);
     } else {
-      console.error(`❌ Failed to fetch progress for course ${courseId}:`, result.reason);
       progressMap.set(courseId, null);
     }
   });
-  
-  console.log('✅ [getMultipleCourseProgress] Progress fetched for all courses');
   
   return progressMap;
 };
@@ -520,4 +511,50 @@ export const getAllCoursesWithProgress = (
  */
 export const getLastWatchedVideo = (progress: CourseProgress | null) => {
   return progress?.lastWatched || null;
+};
+
+/**
+ * Check if a module has any completed videos
+ * @param progress - Course progress data
+ * @param moduleId - The module ID
+ * @returns True if module has completed videos
+ */
+export const hasModuleProgress = (
+  progress: CourseProgress | null,
+  moduleId: string
+): boolean => {
+  if (!progress) return false;
+  return progress.completedVideos.some(video => video.moduleId === moduleId);
+};
+
+/**
+ * Get completed videos count for a specific module
+ * @param progress - Course progress data
+ * @param moduleId - The module ID
+ * @returns Number of completed videos in the module
+ */
+export const getModuleCompletedCount = (
+  progress: CourseProgress | null,
+  moduleId: string
+): number => {
+  if (!progress) return 0;
+  return progress.completedVideos.filter(video => video.moduleId === moduleId).length;
+};
+
+/**
+ * Calculate module completion percentage
+ * @param progress - Course progress data
+ * @param moduleId - The module ID
+ * @param totalModuleVideos - Total videos in the module
+ * @returns Module completion percentage (0-100)
+ */
+export const getModuleCompletionPercentage = (
+  progress: CourseProgress | null,
+  moduleId: string,
+  totalModuleVideos: number
+): number => {
+  if (!progress || totalModuleVideos === 0) return 0;
+  
+  const completedCount = getModuleCompletedCount(progress, moduleId);
+  return Math.round((completedCount / totalModuleVideos) * 100);
 };
