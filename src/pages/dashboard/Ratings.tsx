@@ -99,7 +99,7 @@ export function Ratings() {
       const coursesResponses = await Promise.all(coursesPromises);
       const courses = coursesResponses
         .filter(res => res !== null)
-        .map(res => res.data.course)
+        .map(res => res?.data?.course)
         .filter(Boolean);
 
       setEnrolledCourses(courses);
@@ -135,7 +135,7 @@ export function Ratings() {
     try {
       const response = await api.get(`/ratings/courses/${courseId}/user`);
       
-      if (response.data.rating) {
+      if (response.data?.rating) {
         setMyRating(response.data.rating);
         setRating(response.data.rating.rating);
         setReview(response.data.rating.review);
@@ -157,7 +157,7 @@ export function Ratings() {
   const fetchCourseReviews = async (courseId: string) => {
     try {
       const response = await api.get(`/ratings/courses/${courseId}?page=1&limit=50&sort=-createdAt`);
-      setAllReviews(response.data.ratings || []);
+      setAllReviews(response.data?.ratings || []);
     } catch (error: any) {
       setAllReviews([]);
     }
@@ -269,7 +269,9 @@ export function Ratings() {
       setReview('');
     }
     setIsEditing(false);
-    toast('Edit cancelled');
+    toast('Edit cancelled', {
+      icon: 'ℹ️',
+    });
   };
 
   const isMarkedHelpful = (ratingItem: Rating): boolean => {
@@ -499,7 +501,7 @@ export function Ratings() {
                     Student Reviews
                   </h2>
                   <p className="text-gray-600">
-                    {enrolledCourses.find(c => c._id === selectedCourseId)?.title}
+                    {enrolledCourses.find(c => c._id === selectedCourseId)?.title || 'Select a course'}
                   </p>
                 </div>
                 <div className="text-sm text-gray-600">
@@ -571,7 +573,7 @@ export function Ratings() {
 
                   {/* Reviews List */}
                   <div className="space-y-6">
-                    {allReviews.map((reviewItem) => (
+                    {allReviews.filter(r => r && r.user).map((reviewItem) => (
                       <div
                         key={reviewItem._id}
                         className="border-b border-gray-200 last:border-0 pb-6 last:pb-0"
@@ -579,13 +581,13 @@ export function Ratings() {
                         <div className="flex items-start gap-4 mb-4">
                           <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                             <span className="text-orange-600 font-bold text-lg">
-                              {reviewItem.user.fullName.charAt(0).toUpperCase()}
+                              {reviewItem.user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
                             </span>
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
                               <h3 className="font-bold text-gray-900 text-lg">
-                                {reviewItem.user.fullName}
+                                {reviewItem.user?.fullName || 'Anonymous'}
                               </h3>
                               <span className="text-sm text-gray-500">
                                 {new Date(reviewItem.createdAt).toLocaleDateString('en-US', {
@@ -622,9 +624,9 @@ export function Ratings() {
                                 isMarkedHelpful(reviewItem)
                               )
                             }
-                            disabled={reviewItem.user._id === currentUserId}
+                            disabled={reviewItem.user?._id === currentUserId}
                             className={`flex items-center gap-2 transition-all px-4 py-2 rounded-lg font-medium ${
-                              reviewItem.user._id === currentUserId
+                              reviewItem.user?._id === currentUserId
                                 ? 'text-gray-400 cursor-not-allowed'
                                 : isMarkedHelpful(reviewItem)
                                 ? 'text-orange-600 bg-orange-50 hover:bg-orange-100'
@@ -637,14 +639,14 @@ export function Ratings() {
                               }`}
                             />
                             <span>
-                              {reviewItem.user._id === currentUserId
+                              {reviewItem.user?._id === currentUserId
                                 ? 'Your review'
                                 : isMarkedHelpful(reviewItem)
                                 ? 'Helpful'
                                 : 'Mark as helpful'}
                             </span>
                             <span className="text-gray-500">
-                              ({reviewItem.helpful})
+                              ({reviewItem.helpful || 0})
                             </span>
                           </button>
                         </div>
