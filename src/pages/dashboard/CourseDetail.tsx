@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   PlayCircle, 
   Clock, 
@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Award,
   AlertCircle,
-  Loader2
+  Loader2,
+  Lock
 } from 'lucide-react';
 import api from '../../utils/apiConfig';
 import toast from 'react-hot-toast';
@@ -22,6 +23,7 @@ import {
   getCompletionPercentage,
   CourseProgress
 } from '../../utils/courseProgress';
+import { useEnrollment } from '../../hooks/useEnrollment';
 
 // Types
 interface Video {
@@ -81,6 +83,10 @@ interface Course {
 
 export function CourseDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  // Enrollment check
+  const { isEnrolled, isChecking: checkingEnrollment } = useEnrollment(id);
   
   // State
   const [course, setCourse] = useState<Course | null>(null);
@@ -146,13 +152,14 @@ export function CourseDetail() {
           setShowVideoPlayer(false);
         }
         
-        // Fetch progress data
-        try {
-          const progressData = await getCourseProgress(id);
-          setProgress(progressData);
-        } catch (progressError) {
-          // Don't fail the whole page if progress fetch fails
-          setProgress(null);
+        // Only fetch progress if user is enrolled
+        if (isEnrolled && !checkingEnrollment) {
+          try {
+            const progressData = await getCourseProgress(id);
+            setProgress(progressData);
+          } catch (progressError) {
+            setProgress(null);
+          }
         }
       } catch (err: any) {
         if (err.response?.status === 404) {
@@ -169,9 +176,10 @@ export function CourseDetail() {
       }
     };
 
-    fetchCourseAndProgress();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+    if (!checkingEnrollment) {
+      fetchCourseAndProgress();
+    }
+  }, [id, isEnrolled, checkingEnrollment]);
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) =>
@@ -242,12 +250,40 @@ export function CourseDetail() {
   };
 
   // Loading state
-  if (loading) {
+  if (loading || checkingEnrollment) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Loading course...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not enrolled - redirect to course overview or show enrollment message
+  if (!isEnrolled && course) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md bg-white p-8 rounded-2xl shadow-lg">
+          <Lock className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Enrollment Required</h2>
+          <p className="text-gray-600 mb-6">You need to enroll in this course to access the lessons.</p>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/courses')}
+              className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Go to Courses Page to Enroll
+            </button>
+            <button
+              onClick={() => navigate(`/course-overview/${id}`)}
+              className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              View Overview
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -409,7 +445,7 @@ export function CourseDetail() {
                           {/* Sample Book Links */}
                           <div className="space-y-2">
                             <a
-                              href="/diverticulitis_diet_cookbook_2023.pdf"
+                              href="/diverticulitis diet cookbook 2023.pdf"
                               download="Diverticulitis_Diet_Cookbook_2023.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
@@ -435,7 +471,7 @@ export function CourseDetail() {
                             </a>
                             
                             <a
-                              href="/CRNI_EXAM_Study_Guide_2025_2026.pdf"
+                              href="/CRNI_EXAM_Study_Guide_2025–2026.pdf"
                               download="CRNI_Exam_Study_Guide_2025_2026.pdf"
                               className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                               target="_blank"
@@ -458,7 +494,7 @@ export function CourseDetail() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-800 mb-2">Resource Center</h4>
                           <a
-                            href="/Resource_Center.pdf"
+                            href="/public/Resource Center.pdf"
                             download="Resource_Center.pdf"
                             className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                             target="_blank"
