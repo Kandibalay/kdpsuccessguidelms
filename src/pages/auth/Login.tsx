@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import Footer  from '../../components/Footer';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import { getEnrolledCoursesCount } from '../../utils/enrollmentUtils';
 import axios from 'axios';
 
 interface LoginFormData {
@@ -17,6 +18,7 @@ interface LoginFormData {
 export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [showSessionConflict, setShowSessionConflict] = useState(false);
   const [pendingLoginData, setPendingLoginData] = useState<{ email: string; password: string } | null>(null);
 
@@ -25,7 +27,7 @@ export function Login() {
   const location = useLocation();
   
   // Get the page user was trying to access before being redirected to login
-  const from = (location.state as any)?.from?.pathname || '/dashboard';
+  const from = (location.state as any)?.from?.pathname;
   
   // Clear stale auth when login page mounts
   useEffect(() => {
@@ -39,7 +41,51 @@ export function Login() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  
+  /**
+   * ✅ Smart redirect based on enrollment status with loading state
+   */
+  const handleSuccessfulLogin = async () => {
+    setIsRedirecting(true);
+    
+    try {
+      // Check if user was trying to access a specific page
+      // But ignore dashboard routes if user has no enrollments
+      const isDashboardRoute = from && from.startsWith('/dashboard');
+      const isCourseRoute = from && (from.startsWith('/course') || from.includes('/courses/'));
+      const isProtectedRoute = isDashboardRoute || isCourseRoute;
+      
+      // Only redirect to 'from' if it's not a protected route
+      if (from && from !== '/auth/login' && !isProtectedRoute) {
+        // Small delay for smooth transition
+        await new Promise(resolve => setTimeout(resolve, 300));
+        navigate(from, { replace: true });
+        return;
+      }
+
+      // Check enrollment status to decide where to redirect
+      const enrolledCount = await getEnrolledCoursesCount();
+      
+      // Small delay for smooth transition
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      if (enrolledCount > 0) {
+        // User has enrollments - go to dashboard (or the protected route they wanted)
+        if (isProtectedRoute && from) {
+          navigate(from, { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      } else {
+        // No enrollments - go to home page
+        navigate('/', { replace: true });
+      }
+    } catch (error) {
+      // If enrollment check fails, default to home page
+      await new Promise(resolve => setTimeout(resolve, 300));
+      navigate('/', { replace: true });
+    }
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setShowSessionConflict(false);
@@ -58,15 +104,15 @@ export function Login() {
           email: data.email,
           password: data.password,
         });
+        setIsLoading(false);
       } else if (response.success) {
-        // Redirect to the intended destination (or dashboard if no specific destination)
-        navigate(from, { replace: true });
+        // ✅ Smart redirect based on enrollment
+        await handleSuccessfulLogin();
       }
     } catch (error) {
       // Only show toast for actual errors (wrong password, network issues, etc.)
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       toast.error(errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -88,14 +134,13 @@ export function Login() {
         toast.success('Login successful 🎉');
         setPendingLoginData(null);
         
-        // Redirect to the intended destination
-        navigate(from, { replace: true });
+        // ✅ Smart redirect based on enrollment
+        await handleSuccessfulLogin();
       }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Login failed'
       );
-    } finally {
       setIsLoading(false);
     }
   };
@@ -104,6 +149,18 @@ export function Login() {
     setShowSessionConflict(false);
     setPendingLoginData(null);
   };
+
+  // Show loading overlay during redirect
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 text-lg">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -161,7 +218,7 @@ export function Login() {
                           >
                             {isLoading ? (
                               <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <Loader2 className="w-4 h-4 animate-spin" />
                                 Clearing Session...
                               </>
                             ) : (
@@ -296,7 +353,7 @@ export function Login() {
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       Signing in...
                     </>
                   ) : (
