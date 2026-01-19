@@ -87,7 +87,15 @@ export function Overview() {
     
     const hours = Math.floor(totalMinutes / 60);
     const mins = Math.round(totalMinutes % 60);
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+    
+    // If there are extra minutes, show hours with +
+    if (hours > 0 && mins > 0) {
+      return `${hours}h+`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${mins}m`;
+    }
   };
 
   const getTotalCompletedVideos = () => {
