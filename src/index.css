@@ -1371,7 +1371,12 @@
   .bg-gray-300 {
     background-color: var(--color-gray-300);
   }
-
+  .bg-gray-400 {
+    background-color: var(--color-gray-400);
+  }
+  .bg-gray-500 {
+    background-color: var(--color-gray-500);
+  }
   .bg-gray-800 {
     background-color: var(--color-gray-800);
   }
@@ -1581,6 +1586,11 @@
     --tw-gradient-from: var(--color-gray-50);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
+  .from-gray-400 {
+    --tw-gradient-from: var(--color-gray-400);
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+
 
   .from-orange-600 {
     --tw-gradient-from: var(--color-orange-600);
@@ -1673,6 +1683,10 @@
 
   .to-orange-500 {
     --tw-gradient-to: var(--color-orange-500);
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+  .to-gray-500 {
+    --tw-gradient-to: var(--color-gray-500);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
 

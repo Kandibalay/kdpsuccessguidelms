@@ -1,5 +1,5 @@
 // /**
-//  * Enrollment Utilities - Fixed for course as object
+//  * Enrollment Utilities - Production Version
 //  * Works with /courses/user/enrollments endpoint
 //  */
 
@@ -53,14 +53,11 @@
 // export const getUserEnrollments = async (): Promise<EnrollmentResponse> => {
 //   try {
 //     const response = await api.get<EnrollmentResponse>('/courses/user/enrollments');
-//     console.log('📊 [Enrollments API] Response:', response.data);
 //     return response.data;
 //   } catch (error) {
 //     if (error instanceof AxiosError) {
-//       console.error('❌ [Enrollments API] Error:', error.response?.status, error.message);
 //       throw error;
 //     }
-//     console.error('❌ [Enrollments API] Unknown Error:', error);
 //     throw new Error('Failed to fetch enrollments');
 //   }
 // };
@@ -70,48 +67,21 @@
 //  */
 // export const isUserEnrolled = async (courseId: string): Promise<boolean> => {
 //   try {
-//     console.log('🔍 [isUserEnrolled] Checking enrollment for courseId:', courseId);
-    
 //     const response = await getUserEnrollments();
 //     const enrollments = response.enrollments || [];
-    
-//     console.log('📋 [isUserEnrolled] Total enrollments:', enrollments.length);
-    
-//     // Log each enrollment for debugging
-//     enrollments.forEach((enrollment, index) => {
-//       const extractedCourseId = extractCourseId(enrollment.course);
-//       console.log(`📌 [Enrollment ${index + 1}]`, {
-//         enrollmentId: enrollment._id,
-//         directCourseField: enrollment.course,
-//         extractedCourseId: extractedCourseId,
-//         completedVideosCount: enrollment.completedVideos.length,
-//         courseIdsInVideos: enrollment.completedVideos.map(v => v.courseId)
-//       });
-//     });
     
 //     // Check if any enrollment matches the courseId
 //     const isEnrolled = enrollments.some(enrollment => {
 //       // Case 1: Direct course field match (handle both string and object)
 //       const enrollmentCourseId = extractCourseId(enrollment.course);
 //       if (enrollmentCourseId === courseId) {
-//         console.log('✅ [isUserEnrolled] MATCH via direct course field!', {
-//           enrollmentCourseId,
-//           targetCourseId: courseId
-//         });
 //         return true;
 //       }
       
 //       // Case 2: Check completedVideos array
 //       if (enrollment.completedVideos && enrollment.completedVideos.length > 0) {
 //         const hasMatchingVideo = enrollment.completedVideos.some(video => {
-//           const matches = video.courseId === courseId;
-//           if (matches) {
-//             console.log('✅ [isUserEnrolled] MATCH via completedVideos!', {
-//               videoCourseId: video.courseId,
-//               targetCourseId: courseId
-//             });
-//           }
-//           return matches;
+//           return video.courseId === courseId;
 //         });
         
 //         if (hasMatchingVideo) {
@@ -122,11 +92,9 @@
 //       return false;
 //     });
     
-//     console.log(`${isEnrolled ? '✅' : '❌'} [isUserEnrolled] Final result: User ${isEnrolled ? 'IS' : 'IS NOT'} enrolled in course ${courseId}`);
 //     return isEnrolled;
     
 //   } catch (error) {
-//     console.error('❌ [isUserEnrolled] Error:', error);
 //     return false;
 //   }
 // };
@@ -152,15 +120,8 @@
 //       return false;
 //     });
     
-//     if (enrollment) {
-//       console.log('✅ [getCourseEnrollment] Found enrollment:', enrollment._id);
-//     } else {
-//       console.log('❌ [getCourseEnrollment] No enrollment found for course:', courseId);
-//     }
-    
 //     return enrollment || null;
 //   } catch (error) {
-//     console.error('❌ [getCourseEnrollment] Error:', error);
 //     return null;
 //   }
 // };
@@ -190,12 +151,8 @@
 //       }
 //     });
     
-//     const count = uniqueCourseIds.size;
-//     console.log('📊 [getEnrolledCoursesCount]:', count, 'unique courses');
-//     console.log('📊 [Course IDs]:', Array.from(uniqueCourseIds));
-//     return count;
+//     return uniqueCourseIds.size;
 //   } catch (error) {
-//     console.error('❌ [getEnrolledCoursesCount] Error:', error);
 //     return 0;
 //   }
 // };
@@ -225,11 +182,8 @@
 //       }
 //     });
     
-//     const ids = Array.from(courseIds);
-//     console.log('📋 [getEnrolledCourseIds]:', ids);
-//     return ids;
+//     return Array.from(courseIds);
 //   } catch (error) {
-//     console.error('❌ [getEnrolledCourseIds] Error:', error);
 //     return [];
 //   }
 // };
@@ -240,11 +194,8 @@
 // export const hasAnyEnrollments = async (): Promise<boolean> => {
 //   try {
 //     const response = await getUserEnrollments();
-//     const hasEnrollments = (response.count || 0) > 0;
-//     console.log(`${hasEnrollments ? '✅' : '❌'} [hasAnyEnrollments]:`, hasEnrollments);
-//     return hasEnrollments;
+//     return (response.count || 0) > 0;
 //   } catch (error) {
-//     console.error('❌ [hasAnyEnrollments] Error:', error);
 //     return false;
 //   }
 // };
@@ -255,11 +206,8 @@
 // export const getCourseProgressFromEnrollment = async (courseId: string): Promise<number> => {
 //   try {
 //     const enrollment = await getCourseEnrollment(courseId);
-//     const progress = enrollment?.progress || 0;
-//     console.log('📊 [getCourseProgress]:', progress, '%');
-//     return progress;
+//     return enrollment?.progress || 0;
 //   } catch (error) {
-//     console.error('❌ [getCourseProgress] Error:', error);
 //     return 0;
 //   }
 // };
@@ -276,11 +224,8 @@
 //       video => video.courseId === courseId
 //     );
     
-//     const count = completedForCourse.length;
-//     console.log('📹 [getCompletedVideos]:', count, 'videos for course', courseId);
-//     return count;
+//     return completedForCourse.length;
 //   } catch (error) {
-//     console.error('❌ [getCompletedVideos] Error:', error);
 //     return 0;
 //   }
 // };
@@ -291,56 +236,9 @@
 // export const getLastWatchedFromEnrollment = async (courseId: string) => {
 //   try {
 //     const enrollment = await getCourseEnrollment(courseId);
-//     const lastWatched = enrollment?.lastWatched || null;
-    
-//     if (lastWatched) {
-//       console.log('📺 [getLastWatched]:', lastWatched.lessonTitle);
-//     } else {
-//       console.log('❌ [getLastWatched]: No video history');
-//     }
-    
-//     return lastWatched;
+//     return enrollment?.lastWatched || null;
 //   } catch (error) {
-//     console.error('❌ [getLastWatched] Error:', error);
 //     return null;
-//   }
-// };
-
-// /**
-//  * Debug: Log all enrollment details
-//  */
-// export const debugEnrollments = async (): Promise<void> => {
-//   try {
-//     const response = await getUserEnrollments();
-    
-//     console.group('🔍 ENROLLMENT DEBUG INFO');
-//     console.log('Total Enrollments:', response.count);
-//     console.log('---');
-    
-//     response.enrollments.forEach((enrollment, index) => {
-//       console.group(`Enrollment ${index + 1}`);
-//       console.log('ID:', enrollment._id);
-//       console.log('Direct Course Field:', enrollment.course);
-//       console.log('Extracted Course ID:', extractCourseId(enrollment.course));
-//       console.log('Progress:', enrollment.progress + '%');
-//       console.log('Completed Videos:', enrollment.completedVideos.length);
-      
-//       if (enrollment.completedVideos.length > 0) {
-//         console.log('Course IDs in completedVideos:');
-//         enrollment.completedVideos.forEach((video, i) => {
-//           console.log(`  Video ${i + 1}:`, video.courseId);
-//         });
-//       }
-      
-//       if (enrollment.lastWatched) {
-//         console.log('Last Watched:', enrollment.lastWatched.lessonTitle);
-//       }
-//       console.groupEnd();
-//     });
-    
-//     console.groupEnd();
-//   } catch (error) {
-//     console.error('❌ Debug Enrollments Error:', error);
 //   }
 // };
 
@@ -395,14 +293,39 @@ const extractCourseId = (course: string | null | { _id: string; [key: string]: a
 };
 
 /**
+ * Check if user is authenticated by checking if token exists
+ */
+const isAuthenticated = (): boolean => {
+  try {
+    const authData = localStorage.getItem('auth');
+    if (!authData) return false;
+    
+    const parsed = JSON.parse(authData);
+    return Boolean(parsed.token && parsed.user);
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Fetch all user enrollments from backend
+ * ✅ FIXED: Only makes API call if user is authenticated
  */
 export const getUserEnrollments = async (): Promise<EnrollmentResponse> => {
+  // ✅ Check authentication first
+  if (!isAuthenticated()) {
+    return { enrollments: [], count: 0 };
+  }
+
   try {
     const response = await api.get<EnrollmentResponse>('/courses/user/enrollments');
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
+      // If 401, return empty response instead of throwing
+      if (error.response?.status === 401) {
+        return { enrollments: [], count: 0 };
+      }
       throw error;
     }
     throw new Error('Failed to fetch enrollments');
@@ -411,8 +334,14 @@ export const getUserEnrollments = async (): Promise<EnrollmentResponse> => {
 
 /**
  * Check if user is enrolled in a specific course
+ * ✅ FIXED: Returns false immediately if not authenticated
  */
 export const isUserEnrolled = async (courseId: string): Promise<boolean> => {
+  // ✅ Return false if not authenticated
+  if (!isAuthenticated()) {
+    return false;
+  }
+
   try {
     const response = await getUserEnrollments();
     const enrollments = response.enrollments || [];
@@ -448,8 +377,14 @@ export const isUserEnrolled = async (courseId: string): Promise<boolean> => {
 
 /**
  * Get enrollment data for a specific course
+ * ✅ FIXED: Returns null immediately if not authenticated
  */
 export const getCourseEnrollment = async (courseId: string): Promise<Enrollment | null> => {
+  // ✅ Return null if not authenticated
+  if (!isAuthenticated()) {
+    return null;
+  }
+
   try {
     const response = await getUserEnrollments();
     const enrollments = response.enrollments || [];
@@ -475,8 +410,14 @@ export const getCourseEnrollment = async (courseId: string): Promise<Enrollment 
 
 /**
  * Get total enrolled courses count
+ * ✅ FIXED: Returns 0 immediately if not authenticated
  */
 export const getEnrolledCoursesCount = async (): Promise<number> => {
+  // ✅ Return 0 if not authenticated
+  if (!isAuthenticated()) {
+    return 0;
+  }
+
   try {
     const response = await getUserEnrollments();
     const enrollments = response.enrollments || [];
@@ -506,8 +447,14 @@ export const getEnrolledCoursesCount = async (): Promise<number> => {
 
 /**
  * Get all enrolled course IDs
+ * ✅ FIXED: Returns empty array immediately if not authenticated
  */
 export const getEnrolledCourseIds = async (): Promise<string[]> => {
+  // ✅ Return empty array if not authenticated
+  if (!isAuthenticated()) {
+    return [];
+  }
+
   try {
     const response = await getUserEnrollments();
     const enrollments = response.enrollments || [];
@@ -537,8 +484,14 @@ export const getEnrolledCourseIds = async (): Promise<string[]> => {
 
 /**
  * Check if user has any enrollments
+ * ✅ FIXED: Returns false immediately if not authenticated
  */
 export const hasAnyEnrollments = async (): Promise<boolean> => {
+  // ✅ Return false if not authenticated
+  if (!isAuthenticated()) {
+    return false;
+  }
+
   try {
     const response = await getUserEnrollments();
     return (response.count || 0) > 0;
@@ -549,8 +502,14 @@ export const hasAnyEnrollments = async (): Promise<boolean> => {
 
 /**
  * Get progress percentage for a specific course
+ * ✅ FIXED: Returns 0 immediately if not authenticated
  */
 export const getCourseProgressFromEnrollment = async (courseId: string): Promise<number> => {
+  // ✅ Return 0 if not authenticated
+  if (!isAuthenticated()) {
+    return 0;
+  }
+
   try {
     const enrollment = await getCourseEnrollment(courseId);
     return enrollment?.progress || 0;
@@ -561,8 +520,14 @@ export const getCourseProgressFromEnrollment = async (courseId: string): Promise
 
 /**
  * Get completed videos count for a specific course
+ * ✅ FIXED: Returns 0 immediately if not authenticated
  */
 export const getCompletedVideosFromEnrollment = async (courseId: string): Promise<number> => {
+  // ✅ Return 0 if not authenticated
+  if (!isAuthenticated()) {
+    return 0;
+  }
+
   try {
     const enrollment = await getCourseEnrollment(courseId);
     if (!enrollment) return 0;
@@ -579,8 +544,14 @@ export const getCompletedVideosFromEnrollment = async (courseId: string): Promis
 
 /**
  * Get last watched video for a course
+ * ✅ FIXED: Returns null immediately if not authenticated
  */
 export const getLastWatchedFromEnrollment = async (courseId: string) => {
+  // ✅ Return null if not authenticated
+  if (!isAuthenticated()) {
+    return null;
+  }
+
   try {
     const enrollment = await getCourseEnrollment(courseId);
     return enrollment?.lastWatched || null;
