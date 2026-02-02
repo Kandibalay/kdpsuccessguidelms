@@ -494,7 +494,7 @@ export function CourseDetail() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-800 mb-2">Resource Center</h4>
                           <a
-                            href="/public/Resource Center.pdf"
+                            href="/Resource Center.pdf"
                             download="Resource_Center.pdf"
                             className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
                             target="_blank"
