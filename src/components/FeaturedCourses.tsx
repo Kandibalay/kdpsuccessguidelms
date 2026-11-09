@@ -1516,7 +1516,7 @@ export function FeaturedCourses() {
                         ₦{ORIGINAL_PRICE.toLocaleString()}
                       </span>
                       {/* New main price */}
-                      <span className="text-4xl font-bold text-gray-900">
+                        <span className="text-4xl font-semibold text-gray-900">
                         ₦{SALE_PRICE.toLocaleString()}
                       </span>
                     </div>
