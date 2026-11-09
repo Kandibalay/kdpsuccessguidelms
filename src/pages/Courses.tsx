@@ -796,7 +796,7 @@ export function Courses() {
                             ₦{ORIGINAL_PRICE.toLocaleString()}
                           </span>
                           {/* New main price */}
-                          <span className="bg-red-600 text-white text-2xl lg:text-3xl font-bold px-4 py-1 rounded-full">
+                         <span className="text-gray-900 text-2xl lg:text-3xl font-bold">
                             ₦{SALE_PRICE.toLocaleString()}
                           </span>
                         </div>
